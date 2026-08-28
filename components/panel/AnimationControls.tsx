@@ -3,7 +3,7 @@ import { AnimationConfig } from '../../types/overlay';
 
 interface AnimationControlsProps {
   config: AnimationConfig;
-  onChange: (anim: AnimationConfig) => void;
+  onChange: (anim: AnimationConfig, commit?: boolean) => void;
 }
 
 export function AnimationControls({ config, onChange }: AnimationControlsProps) {
