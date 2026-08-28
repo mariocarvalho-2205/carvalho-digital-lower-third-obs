@@ -8,9 +8,10 @@ import { Image as ImageIcon, Eye, EyeOff, Trash2, Upload } from 'lucide-react';
 interface LivePreviewProps {
   config: OverlayConfig;
   isActive: boolean;
+  isPreviewActive: boolean;
 }
 
-export function LivePreview({ config, isActive }: LivePreviewProps) {
+export function LivePreview({ config, isActive, isPreviewActive }: LivePreviewProps) {
   const [referenceImage, setReferenceImage] = useState<string | null>(null);
   const [referenceOpacity, setReferenceOpacity] = useState<number>(0.5);
   const [referenceVisible, setReferenceVisible] = useState<boolean>(true);
@@ -76,7 +77,7 @@ export function LivePreview({ config, isActive }: LivePreviewProps) {
         
         {/* The visual lower third scale wrapper */}
         <div className="w-full h-full relative z-10" style={{ transform: 'scale(1)', transformOrigin: 'top left' }}>
-          <LowerThird config={config} isActive={isActive} />
+          <LowerThird config={config} isActive={isPreviewActive} />
         </div>
       </div>
 

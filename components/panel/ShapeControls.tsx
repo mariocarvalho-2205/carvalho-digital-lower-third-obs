@@ -4,25 +4,25 @@ import { BarConfig, ContentBoxConfig } from '../../types/overlay';
 interface ShapeControlsProps {
   label: string;
   config: BarConfig | ContentBoxConfig;
-  onChange: (shape: any) => void;
+  onChange: (shape: any, commit?: boolean) => void;
 }
 
 export function ShapeControls({ label, config, onChange }: ShapeControlsProps) {
-  const updateProp = (key: string, value: any) => {
+  const updateProp = (key: string, value: any, commit = true) => {
     onChange({
       ...config,
       [key]: value
-    });
+    }, commit);
   };
 
-  const updateRadius = (key: string, value: number) => {
+  const updateRadius = (key: string, value: number, commit = true) => {
     onChange({
       ...config,
       radius: {
         ...((config as any).radius || { topLeft: 0, topRight: 0, bottomRight: 0, bottomLeft: 0 }),
         [key]: value
       }
-    });
+    }, commit);
   };
 
   const isBarConfig = (cfg: any): cfg is BarConfig => {
@@ -40,7 +40,13 @@ export function ShapeControls({ label, config, onChange }: ShapeControlsProps) {
           <input
             type="number"
             value={config.x}
-            onChange={(e) => updateProp('x', parseInt(e.target.value) || 0)}
+            onChange={(e) => updateProp('x', parseInt(e.target.value) || 0, false)}
+            onBlur={(e) => updateProp('x', parseInt(e.target.value) || 0, true)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                updateProp('x', parseInt(e.currentTarget.value) || 0, true);
+              }
+            }}
             className="w-full bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-slate-100 focus:outline-none focus:border-blue-500"
           />
         </div>
@@ -49,7 +55,13 @@ export function ShapeControls({ label, config, onChange }: ShapeControlsProps) {
           <input
             type="number"
             value={config.y}
-            onChange={(e) => updateProp('y', parseInt(e.target.value) || 0)}
+            onChange={(e) => updateProp('y', parseInt(e.target.value) || 0, false)}
+            onBlur={(e) => updateProp('y', parseInt(e.target.value) || 0, true)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                updateProp('y', parseInt(e.currentTarget.value) || 0, true);
+              }
+            }}
             className="w-full bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-slate-100 focus:outline-none focus:border-blue-500"
           />
         </div>
@@ -58,7 +70,13 @@ export function ShapeControls({ label, config, onChange }: ShapeControlsProps) {
           <input
             type="number"
             value={config.width}
-            onChange={(e) => updateProp('width', parseInt(e.target.value) || 0)}
+            onChange={(e) => updateProp('width', parseInt(e.target.value) || 0, false)}
+            onBlur={(e) => updateProp('width', parseInt(e.target.value) || 0, true)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                updateProp('width', parseInt(e.currentTarget.value) || 0, true);
+              }
+            }}
             className="w-full bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-slate-100 focus:outline-none focus:border-blue-500"
           />
         </div>
@@ -67,7 +85,13 @@ export function ShapeControls({ label, config, onChange }: ShapeControlsProps) {
           <input
             type="number"
             value={config.height}
-            onChange={(e) => updateProp('height', parseInt(e.target.value) || 0)}
+            onChange={(e) => updateProp('height', parseInt(e.target.value) || 0, false)}
+            onBlur={(e) => updateProp('height', parseInt(e.target.value) || 0, true)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                updateProp('height', parseInt(e.currentTarget.value) || 0, true);
+              }
+            }}
             className="w-full bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-slate-100 focus:outline-none focus:border-blue-500"
           />
         </div>

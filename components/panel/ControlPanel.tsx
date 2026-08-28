@@ -21,13 +21,22 @@ type TabType = 'global' | 'visual' | 'text' | 'logo' | 'animation';
 
 export function ControlPanel({ overlay, onUpdate, slug }: ControlPanelProps) {
   const [activeTab, setActiveTab] = useState<TabType>('text');
+  const [isPreviewActive, setIsPreviewActive] = useState<boolean>(true);
+  const [localConfig, setLocalConfig] = React.useState<OverlayConfig>(overlay.config);
 
-  const handleConfigChange = (section: keyof OverlayConfig, value: any) => {
+  React.useEffect(() => {
+    setLocalConfig(overlay.config);
+  }, [overlay.config]);
+
+  const handleConfigChange = (section: keyof OverlayConfig, value: any, commit = true) => {
     const updatedConfig = {
-      ...overlay.config,
+      ...localConfig,
       [section]: value
     };
-    onUpdate({ config: updatedConfig });
+    setLocalConfig(updatedConfig);
+    if (commit) {
+      onUpdate({ config: updatedConfig });
+    }
   };
 
   const tabs = [
@@ -42,11 +51,13 @@ export function ControlPanel({ overlay, onUpdate, slug }: ControlPanelProps) {
     <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
       {/* Lado Esquerdo: Preview e Ações Rápidas */}
       <div className="lg:col-span-6 flex flex-col gap-6 lg:sticky lg:top-6">
-        <LivePreview config={overlay.config} isActive={overlay.is_active} />
+        <LivePreview config={localConfig} isActive={overlay.is_active} isPreviewActive={isPreviewActive} />
 
         <VisibilityControls
           isActive={overlay.is_active}
-          onToggle={(val) => onUpdate({ is_active: val })}
+          onToggle={() => onUpdate({ is_active: !overlay.is_active })}
+          isPreviewActive={isPreviewActive}
+          onTogglePreview={() => setIsPreviewActive((prev) => !prev)}
         />
 
         <div className="bg-slate-900 border border-slate-800 rounded-xl p-4 flex flex-col gap-2 text-xs text-slate-400">
@@ -104,15 +115,15 @@ export function ControlPanel({ overlay, onUpdate, slug }: ControlPanelProps) {
         <div className="flex flex-col gap-4">
           {activeTab === 'global' && (
             <GlobalTransformControls
-              config={overlay.config.globalTransform}
-              onChange={(val) => handleConfigChange('globalTransform', val)}
+              config={localConfig.globalTransform}
+              onChange={(val, commit) => handleConfigChange('globalTransform', val, commit)}
             />
           )}
 
           {activeTab === 'text' && (
             <TextControls
-              config={overlay.config.texts}
-              onChange={(val) => handleConfigChange('texts', val)}
+              config={localConfig.texts}
+              onChange={(val, commit) => handleConfigChange('texts', val, commit)}
               slug={slug}
             />
           )}
@@ -121,34 +132,34 @@ export function ControlPanel({ overlay, onUpdate, slug }: ControlPanelProps) {
             <>
               <ShapeControls
                 label="Barra Superior"
-                config={overlay.config.topBar}
-                onChange={(val) => handleConfigChange('topBar', val)}
+                config={localConfig.topBar}
+                onChange={(val, commit) => handleConfigChange('topBar', val, commit)}
               />
               <ShapeControls
                 label="Área Principal (Corpo Branco)"
-                config={overlay.config.contentBox}
-                onChange={(val) => handleConfigChange('contentBox', val)}
+                config={localConfig.contentBox}
+                onChange={(val, commit) => handleConfigChange('contentBox', val, commit)}
               />
               <ShapeControls
                 label="Barra Inferior"
-                config={overlay.config.bottomBar}
-                onChange={(val) => handleConfigChange('bottomBar', val)}
+                config={localConfig.bottomBar}
+                onChange={(val, commit) => handleConfigChange('bottomBar', val, commit)}
               />
             </>
           )}
 
           {activeTab === 'logo' && (
             <LogoControls
-              config={overlay.config.logo}
-              onChange={(val) => handleConfigChange('logo', val)}
+              config={localConfig.logo}
+              onChange={(val, commit) => handleConfigChange('logo', val, commit)}
               slug={slug}
             />
           )}
 
           {activeTab === 'animation' && (
             <AnimationControls
-              config={overlay.config.animation}
-              onChange={(val) => handleConfigChange('animation', val)}
+              config={localConfig.animation}
+              onChange={(val, commit) => handleConfigChange('animation', val, commit)}
             />
           )}
         </div>

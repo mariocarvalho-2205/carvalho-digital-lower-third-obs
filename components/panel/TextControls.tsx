@@ -4,7 +4,7 @@ import { createClient } from '../../lib/supabase/client';
 
 interface TextControlsProps {
   config: TextsConfig;
-  onChange: (texts: TextsConfig) => void;
+  onChange: (texts: TextsConfig, commit?: boolean) => void;
   slug?: string;
 }
 
@@ -47,14 +47,14 @@ export function TextControls({ config, onChange, slug = 'default' }: TextControl
     fontFamily: 'Arial'
   };
 
-  const updateTargetField = (field: keyof TextPropertyConfig, value: any) => {
+  const updateTargetField = (field: keyof TextPropertyConfig, value: any, commit = true) => {
     onChange({
       ...config,
       [activeSection]: {
         ...targetConfig,
         [field]: value
       }
-    });
+    }, commit);
   };
 
   const handleSeparatorUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -208,7 +208,13 @@ export function TextControls({ config, onChange, slug = 'default' }: TextControl
         <input
           type="text"
           value={targetConfig.content}
-          onChange={(e) => updateTargetField('content', e.target.value)}
+          onChange={(e) => updateTargetField('content', e.target.value, false)}
+          onBlur={(e) => updateTargetField('content', e.target.value, true)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              updateTargetField('content', e.currentTarget.value, true);
+            }
+          }}
           className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-100 placeholder-slate-600 focus:outline-none focus:border-blue-500"
         />
       </div>
@@ -253,7 +259,13 @@ export function TextControls({ config, onChange, slug = 'default' }: TextControl
           <input
             type="number"
             value={targetConfig.fontSize}
-            onChange={(e) => updateTargetField('fontSize', Number(e.target.value))}
+            onChange={(e) => updateTargetField('fontSize', Number(e.target.value), false)}
+            onBlur={(e) => updateTargetField('fontSize', Number(e.target.value), true)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                updateTargetField('fontSize', Number(e.currentTarget.value), true);
+              }
+            }}
             className="bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-blue-500"
           />
         </div>
@@ -262,7 +274,13 @@ export function TextControls({ config, onChange, slug = 'default' }: TextControl
           <input
             type="number"
             value={targetConfig.x}
-            onChange={(e) => updateTargetField('x', Number(e.target.value))}
+            onChange={(e) => updateTargetField('x', Number(e.target.value), false)}
+            onBlur={(e) => updateTargetField('x', Number(e.target.value), true)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                updateTargetField('x', Number(e.currentTarget.value), true);
+              }
+            }}
             className="bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-blue-500"
           />
         </div>
@@ -271,7 +289,13 @@ export function TextControls({ config, onChange, slug = 'default' }: TextControl
           <input
             type="number"
             value={targetConfig.y}
-            onChange={(e) => updateTargetField('y', Number(e.target.value))}
+            onChange={(e) => updateTargetField('y', Number(e.target.value), false)}
+            onBlur={(e) => updateTargetField('y', Number(e.target.value), true)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                updateTargetField('y', Number(e.currentTarget.value), true);
+              }
+            }}
             className="bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-blue-500"
           />
         </div>
@@ -281,7 +305,13 @@ export function TextControls({ config, onChange, slug = 'default' }: TextControl
             type="number"
             placeholder="Auto"
             value={targetConfig.maxWidth || ''}
-            onChange={(e) => updateTargetField('maxWidth', Number(e.target.value))}
+            onChange={(e) => updateTargetField('maxWidth', Number(e.target.value), false)}
+            onBlur={(e) => updateTargetField('maxWidth', Number(e.target.value), true)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                updateTargetField('maxWidth', Number(e.currentTarget.value), true);
+              }
+            }}
             className="bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-slate-100 placeholder-slate-600 focus:outline-none focus:border-blue-500"
           />
         </div>
@@ -460,7 +490,13 @@ export function TextControls({ config, onChange, slug = 'default' }: TextControl
                   min="5"
                   max="120"
                   value={targetConfig.scrollSpeed ?? 20}
-                  onChange={(e) => updateTargetField('scrollSpeed', Number(e.target.value))}
+                  onChange={(e) => updateTargetField('scrollSpeed', Number(e.target.value), false)}
+                  onBlur={(e) => updateTargetField('scrollSpeed', Number(e.target.value), true)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      updateTargetField('scrollSpeed', Number(e.currentTarget.value), true);
+                    }
+                  }}
                   className="bg-slate-900 border border-slate-800 rounded px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none"
                 />
                 <span className="text-[9px] text-slate-500">Valores menores = mais rápido</span>
@@ -470,7 +506,13 @@ export function TextControls({ config, onChange, slug = 'default' }: TextControl
                 <input
                   type="number"
                   value={targetConfig.scrollSeparatorMargin ?? 30}
-                  onChange={(e) => updateTargetField('scrollSeparatorMargin', Number(e.target.value))}
+                  onChange={(e) => updateTargetField('scrollSeparatorMargin', Number(e.target.value), false)}
+                  onBlur={(e) => updateTargetField('scrollSeparatorMargin', Number(e.target.value), true)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      updateTargetField('scrollSeparatorMargin', Number(e.currentTarget.value), true);
+                    }
+                  }}
                   className="bg-slate-900 border border-slate-800 rounded px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none"
                 />
               </div>
@@ -522,7 +564,13 @@ export function TextControls({ config, onChange, slug = 'default' }: TextControl
                   <input
                     type="number"
                     value={targetConfig.scrollSeparatorLogoWidth ?? 24}
-                    onChange={(e) => updateTargetField('scrollSeparatorLogoWidth', Number(e.target.value))}
+                    onChange={(e) => updateTargetField('scrollSeparatorLogoWidth', Number(e.target.value), false)}
+                    onBlur={(e) => updateTargetField('scrollSeparatorLogoWidth', Number(e.target.value), true)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        updateTargetField('scrollSeparatorLogoWidth', Number(e.currentTarget.value), true);
+                      }
+                    }}
                     className="bg-slate-900 border border-slate-800 rounded px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none"
                   />
                 </div>
@@ -531,7 +579,13 @@ export function TextControls({ config, onChange, slug = 'default' }: TextControl
                   <input
                     type="number"
                     value={targetConfig.scrollSeparatorLogoHeight ?? 24}
-                    onChange={(e) => updateTargetField('scrollSeparatorLogoHeight', Number(e.target.value))}
+                    onChange={(e) => updateTargetField('scrollSeparatorLogoHeight', Number(e.target.value), false)}
+                    onBlur={(e) => updateTargetField('scrollSeparatorLogoHeight', Number(e.target.value), true)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        updateTargetField('scrollSeparatorLogoHeight', Number(e.currentTarget.value), true);
+                      }
+                    }}
                     className="bg-slate-900 border border-slate-800 rounded px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none"
                   />
                 </div>
