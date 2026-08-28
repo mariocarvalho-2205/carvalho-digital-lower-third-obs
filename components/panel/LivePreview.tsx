@@ -77,7 +77,7 @@ export function LivePreview({ config, isActive, isPreviewActive }: LivePreviewPr
         
         {/* The visual lower third scale wrapper */}
         <div className="w-full h-full relative z-10" style={{ transform: 'scale(1)', transformOrigin: 'top left' }}>
-          <LowerThird config={config} isActive={isPreviewActive} />
+          <LowerThird config={config} isActive={isPreviewActive} isPreview={true} />
         </div>
       </div>
 

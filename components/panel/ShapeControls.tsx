@@ -30,26 +30,43 @@ export function ShapeControls({ label, config, onChange }: ShapeControlsProps) {
   };
 
   const isEnabled = config.enabled !== false;
+  const isLocked = config.locked === true;
 
   return (
     <div className="bg-slate-900 border border-slate-800 rounded-xl p-4 flex flex-col gap-4">
       <div className="flex items-center justify-between border-b border-slate-800/60 pb-3">
         <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider">{label}</h3>
-        <div className="flex items-center gap-2">
-          <span className="text-[10px] text-slate-500 font-semibold">{isEnabled ? 'ATIVADO' : 'DESATIVADO'}</span>
-          <label className="relative inline-flex items-center cursor-pointer">
-            <input
-              type="checkbox"
-              checked={isEnabled}
-              onChange={(e) => updateProp('enabled', e.target.checked, true)}
-              className="sr-only peer"
-            />
-            <div className="w-8 h-4 bg-slate-950 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-blue-600"></div>
-          </label>
+        <div className="flex items-center gap-3">
+          {/* Lock toggle — bloqueia edição acidental */}
+          <div className="flex items-center gap-1.5">
+            <span className="text-[9px] text-slate-500 font-semibold">{isLocked ? '🔒 BLOQUEADO' : '✏️ EDITÁVEL'}</span>
+            <label className="relative inline-flex items-center cursor-pointer">
+              <input
+                type="checkbox"
+                checked={isLocked}
+                onChange={(e) => updateProp('locked', e.target.checked, true)}
+                className="sr-only peer"
+              />
+              <div className="w-8 h-4 bg-slate-950 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-amber-500"></div>
+            </label>
+          </div>
+
+          {/* Visibility button — exibe ou remove o elemento da tela */}
+          <button
+            onClick={() => updateProp('enabled', !isEnabled, true)}
+            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[10px] font-bold border transition-all duration-200 ${
+              isEnabled
+                ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/20'
+                : 'bg-rose-500/10 border-rose-500/30 text-rose-400 hover:bg-rose-500/20'
+            }`}
+          >
+            <span className={`w-1.5 h-1.5 rounded-full ${isEnabled ? 'bg-emerald-400 animate-pulse' : 'bg-rose-400'}`} />
+            {isEnabled ? 'VISÍVEL' : 'OCULTO'}
+          </button>
         </div>
       </div>
 
-      <div className={`flex flex-col gap-4 transition-all duration-200 ${!isEnabled ? 'opacity-40 pointer-events-none select-none' : ''}`}>
+      <div className={`flex flex-col gap-4 transition-all duration-200 ${isLocked ? 'opacity-40 pointer-events-none select-none' : ''}`}>
       
       {/* Position and Size */}
       <div className="grid grid-cols-2 gap-3">

@@ -97,6 +97,7 @@ function mergeConfig(dbConfig: any): OverlayConfig {
         bottomLeft: dbConfig.topBar?.radius?.bottomLeft ?? defaults.topBar.radius.bottomLeft,
       },
       enabled: dbConfig.topBar?.enabled !== undefined ? dbConfig.topBar.enabled : (defaults.topBar.enabled ?? true),
+      locked: dbConfig.topBar?.locked !== undefined ? dbConfig.topBar.locked : (defaults.topBar.locked ?? false),
     },
     contentBox: {
       x: dbConfig.contentBox?.x ?? defaults.contentBox.x,
@@ -112,6 +113,7 @@ function mergeConfig(dbConfig: any): OverlayConfig {
       },
       opacity: dbConfig.contentBox?.opacity ?? defaults.contentBox.opacity,
       enabled: dbConfig.contentBox?.enabled !== undefined ? dbConfig.contentBox.enabled : (defaults.contentBox.enabled ?? true),
+      locked: dbConfig.contentBox?.locked !== undefined ? dbConfig.contentBox.locked : (defaults.contentBox.locked ?? false),
     },
     bottomBar: {
       x: dbConfig.bottomBar?.x ?? defaults.bottomBar.x,
@@ -132,6 +134,7 @@ function mergeConfig(dbConfig: any): OverlayConfig {
         bottomLeft: dbConfig.bottomBar?.radius?.bottomLeft ?? defaults.bottomBar.radius.bottomLeft,
       },
       enabled: dbConfig.bottomBar?.enabled !== undefined ? dbConfig.bottomBar.enabled : (defaults.bottomBar.enabled ?? true),
+      locked: dbConfig.bottomBar?.locked !== undefined ? dbConfig.bottomBar.locked : (defaults.bottomBar.locked ?? false),
     },
     logo: {
       url: dbConfig.logo?.url !== undefined ? dbConfig.logo.url : defaults.logo.url,

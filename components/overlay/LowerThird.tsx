@@ -8,10 +8,16 @@ import { OverlayCanvas } from './OverlayCanvas';
 interface LowerThirdProps {
   config: OverlayConfig;
   isActive: boolean;
+  isPreview?: boolean;
 }
 
-export function LowerThird({ config, isActive }: LowerThirdProps) {
+export function LowerThird({ config, isActive, isPreview = false }: LowerThirdProps) {
   const { topBar, contentBox, bottomBar, texts, logo, animation } = config;
+
+  // In preview mode, always show all elements regardless of their enabled state
+  const isTopBarEnabled = isPreview ? true : (topBar.enabled !== false);
+  const isContentBoxEnabled = isPreview ? true : (contentBox.enabled !== false);
+  const isBottomBarEnabled = isPreview ? true : (bottomBar.enabled !== false);
 
   // Generate custom keyframes style based on animation.enter and animation.exit
   const renderAnimationStyles = () => {
@@ -61,6 +67,39 @@ export function LowerThird({ config, isActive }: LowerThirdProps) {
             animation: animExit ${duration} cubic-bezier(0.16, 1, 0.3, 1) forwards;
             pointer-events: none;
           }
+          .topbar-active {
+            opacity: 1;
+            transform: translateY(0);
+            transition: opacity 400ms cubic-bezier(0.16, 1, 0.3, 1), transform 400ms cubic-bezier(0.16, 1, 0.3, 1);
+          }
+          .topbar-inactive {
+            opacity: 0;
+            transform: translateY(-50px);
+            transition: opacity 400ms cubic-bezier(0.16, 1, 0.3, 1), transform 400ms cubic-bezier(0.16, 1, 0.3, 1);
+            pointer-events: none;
+          }
+          .contentbox-active {
+            opacity: 1;
+            transform: translateX(0);
+            transition: opacity 400ms cubic-bezier(0.16, 1, 0.3, 1), transform 400ms cubic-bezier(0.16, 1, 0.3, 1);
+          }
+          .contentbox-inactive {
+            opacity: 0;
+            transform: translateX(-100px);
+            transition: opacity 400ms cubic-bezier(0.16, 1, 0.3, 1), transform 400ms cubic-bezier(0.16, 1, 0.3, 1);
+            pointer-events: none;
+          }
+          .bottombar-active {
+            opacity: 1;
+            transform: translateY(0);
+            transition: opacity 400ms cubic-bezier(0.16, 1, 0.3, 1), transform 400ms cubic-bezier(0.16, 1, 0.3, 1);
+          }
+          .bottombar-inactive {
+            opacity: 0;
+            transform: translateY(50px);
+            transition: opacity 400ms cubic-bezier(0.16, 1, 0.3, 1), transform 400ms cubic-bezier(0.16, 1, 0.3, 1);
+            pointer-events: none;
+          }
         `
       }} />
     );
@@ -86,17 +125,14 @@ export function LowerThird({ config, isActive }: LowerThirdProps) {
             background: 'transparent',
           }}
         >
-        {/* Retângulo Superior */}
-        {topBar.enabled !== false && (
-          <>
+          {/* Retângulo Superior */}
+          <div className={`w-full h-full absolute inset-0 pointer-events-none ${isTopBarEnabled ? 'topbar-active' : 'topbar-inactive'}`}>
             <Shape config={topBar} />
             {texts.topText && <TextElement config={texts.topText} />}
-          </>
-        )}
+          </div>
 
-        {/* Área Principal (ContentBox) */}
-        {contentBox.enabled !== false && (
-          <>
+          {/* Área Principal (ContentBox) + Logo */}
+          <div className={`w-full h-full absolute inset-0 pointer-events-none ${isContentBoxEnabled ? 'contentbox-active' : 'contentbox-inactive'}`}>
             <div
               style={{
                 position: 'absolute',
@@ -119,21 +155,17 @@ export function LowerThird({ config, isActive }: LowerThirdProps) {
             {/* Textos Principais */}
             <TextElement config={texts.title} />
             <TextElement config={texts.subtitle} />
-          </>
-        )}
+            {/* Logo */}
+            <LogoElement config={logo} />
+          </div>
 
-        {/* Logo */}
-        <LogoElement config={logo} />
-
-        {/* Retângulo Inferior */}
-        {bottomBar.enabled !== false && (
-          <>
+          {/* Retângulo Inferior */}
+          <div className={`w-full h-full absolute inset-0 pointer-events-none ${isBottomBarEnabled ? 'bottombar-active' : 'bottombar-inactive'}`}>
             <Shape config={bottomBar} />
             {texts.bottomText && <TextElement config={texts.bottomText} containerBar={bottomBar} />}
-          </>
-        )}
+          </div>
+        </div>
       </div>
-    </div>
-  </OverlayCanvas>
+    </OverlayCanvas>
   );
 }

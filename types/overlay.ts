@@ -72,6 +72,7 @@ export interface BarConfig {
   background: BackgroundConfig;
   radius: CornerRadiusConfig;
   enabled?: boolean;
+  locked?: boolean;
 }
 
 export interface ContentBoxConfig {
@@ -83,6 +84,7 @@ export interface ContentBoxConfig {
   radius: CornerRadiusConfig;
   opacity: number;
   enabled?: boolean;
+  locked?: boolean;
 }
 
 export interface LogoConfig {
