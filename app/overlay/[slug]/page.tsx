@@ -39,7 +39,19 @@ export default function OverlayPage() {
         className="w-screen h-screen overflow-hidden relative"
         style={{ background: 'transparent' }}
       >
-        <LowerThird config={overlay.config} isActive={overlay.is_active} />
+        {overlay.config.variations?.map((variation) => {
+          const subConfig = {
+            ...overlay.config,
+            ...variation,
+            canvas: overlay.config.canvas,
+            animation: overlay.config.animation,
+          };
+          return (
+            <div key={variation.id} className="absolute inset-0 pointer-events-none">
+              <LowerThird config={subConfig} isActive={overlay.is_active && variation.is_active} />
+            </div>
+          );
+        })}
       </main>
     </>
   );

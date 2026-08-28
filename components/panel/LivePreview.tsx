@@ -9,9 +9,10 @@ interface LivePreviewProps {
   config: OverlayConfig;
   isActive: boolean;
   isPreviewActive: boolean;
+  activeVariationId: string | null;
 }
 
-export function LivePreview({ config, isActive, isPreviewActive }: LivePreviewProps) {
+export function LivePreview({ config, isActive, isPreviewActive, activeVariationId }: LivePreviewProps) {
   const [referenceImage, setReferenceImage] = useState<string | null>(null);
   const [referenceOpacity, setReferenceOpacity] = useState<number>(0.5);
   const [referenceVisible, setReferenceVisible] = useState<boolean>(true);
@@ -77,7 +78,33 @@ export function LivePreview({ config, isActive, isPreviewActive }: LivePreviewPr
         
         {/* The visual lower third scale wrapper */}
         <div className="w-full h-full relative z-10" style={{ transform: 'scale(1)', transformOrigin: 'top left' }}>
-          <LowerThird config={config} isActive={isPreviewActive} isPreview={true} />
+          {activeVariationId !== null ? (
+            (() => {
+              const currentVar = config.variations?.find((v) => v.id === activeVariationId);
+              if (!currentVar) return null;
+              const subConfig = {
+                ...config,
+                ...currentVar,
+                canvas: config.canvas,
+                animation: config.animation,
+              };
+              return <LowerThird config={subConfig} isActive={isPreviewActive} isPreview={true} />;
+            })()
+          ) : (
+            config.variations?.map((variation) => {
+              const subConfig = {
+                ...config,
+                ...variation,
+                canvas: config.canvas,
+                animation: config.animation,
+              };
+              return (
+                <div key={variation.id} className="absolute inset-0 pointer-events-none">
+                  <LowerThird config={subConfig} isActive={isPreviewActive && variation.is_active} isPreview={true} />
+                </div>
+              );
+            })
+          )}
         </div>
       </div>
 

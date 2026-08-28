@@ -19,6 +19,10 @@ export function LowerThird({ config, isActive, isPreview = false }: LowerThirdPr
   const isContentBoxEnabled = isPreview ? true : (contentBox.enabled !== false);
   const isBottomBarEnabled = isPreview ? true : (bottomBar.enabled !== false);
 
+  // Generate a stable unique suffix for this instance's keyframes
+  // so multiple simultaneous variations don't clobber each other's animation styles.
+  const animId = React.useId().replace(/:/g, '');
+
   // Generate custom keyframes style based on animation.enter and animation.exit
   const renderAnimationStyles = () => {
     const duration = `${animation.duration}ms`;
@@ -40,7 +44,7 @@ export function LowerThird({ config, isActive, isPreview = false }: LowerThirdPr
     return (
       <style dangerouslySetInnerHTML={{
         __html: `
-          @keyframes animEnter {
+          @keyframes animEnter_${animId} {
             0% {
               opacity: 0;
               transform: ${getEnterTransform()};
@@ -50,7 +54,7 @@ export function LowerThird({ config, isActive, isPreview = false }: LowerThirdPr
               transform: translate(0, 0);
             }
           }
-          @keyframes animExit {
+          @keyframes animExit_${animId} {
             0% {
               opacity: 1;
               transform: translate(0, 0);
@@ -60,11 +64,11 @@ export function LowerThird({ config, isActive, isPreview = false }: LowerThirdPr
               transform: ${getExitTransform()};
             }
           }
-          .anim-active {
-            animation: animEnter ${duration} cubic-bezier(0.16, 1, 0.3, 1) forwards;
+          .anim-active-${animId} {
+            animation: animEnter_${animId} ${duration} cubic-bezier(0.16, 1, 0.3, 1) forwards;
           }
-          .anim-inactive {
-            animation: animExit ${duration} cubic-bezier(0.16, 1, 0.3, 1) forwards;
+          .anim-inactive-${animId} {
+            animation: animExit_${animId} ${duration} cubic-bezier(0.16, 1, 0.3, 1) forwards;
             pointer-events: none;
           }
           .topbar-active {
@@ -105,6 +109,7 @@ export function LowerThird({ config, isActive, isPreview = false }: LowerThirdPr
     );
   };
 
+
   const contentBoxBorderRadius = `${contentBox.radius.topLeft}px ${contentBox.radius.topRight}px ${contentBox.radius.bottomRight}px ${contentBox.radius.bottomLeft}px`;
 
   const globalTransform = config.globalTransform || { x: 0, y: 0, scale: 1 };
@@ -120,7 +125,7 @@ export function LowerThird({ config, isActive, isPreview = false }: LowerThirdPr
         }}
       >
         <div
-          className={`w-full h-full relative ${isActive ? 'anim-active' : 'anim-inactive'}`}
+          className={`w-full h-full relative ${isActive ? `anim-active-${animId}` : `anim-inactive-${animId}`}`}
           style={{
             background: 'transparent',
           }}

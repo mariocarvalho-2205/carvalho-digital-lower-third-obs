@@ -111,6 +111,18 @@ export interface GlobalTransformConfig {
   scale: number;   // Escala global (ex: 1 = 100%, 0.8 = 80%)
 }
 
+export interface VariationConfig {
+  id: string;
+  name: string;
+  is_active: boolean;
+  topBar: BarConfig;
+  contentBox: ContentBoxConfig;
+  bottomBar: BarConfig;
+  texts: TextsConfig;
+  logo: LogoConfig;
+  globalTransform?: GlobalTransformConfig;
+}
+
 export interface OverlayConfig {
   canvas: CanvasConfig;
   texts: TextsConfig;
@@ -120,6 +132,7 @@ export interface OverlayConfig {
   logo: LogoConfig;
   animation: AnimationConfig;
   globalTransform?: GlobalTransformConfig;
+  variations?: VariationConfig[];
 }
 
 export interface OverlayData {
