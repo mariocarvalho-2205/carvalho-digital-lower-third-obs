@@ -87,40 +87,51 @@ export function LowerThird({ config, isActive }: LowerThirdProps) {
           }}
         >
         {/* Retângulo Superior */}
-        <Shape config={topBar} />
-        {texts.topText && <TextElement config={texts.topText} />}
+        {topBar.enabled !== false && (
+          <>
+            <Shape config={topBar} />
+            {texts.topText && <TextElement config={texts.topText} />}
+          </>
+        )}
 
         {/* Área Principal (ContentBox) */}
-        <div
-          style={{
-            position: 'absolute',
-            left: `${contentBox.x}px`,
-            top: `${contentBox.y}px`,
-            width: `${contentBox.width}px`,
-            height: `${contentBox.height}px`,
-            background: typeof contentBox.background === 'string'
-              ? contentBox.background
-              : contentBox.background.type === 'gradient'
-                ? `linear-gradient(to ${contentBox.background.direction || 'right'}, ${contentBox.background.start}, ${contentBox.background.end})`
-                : contentBox.background.color || '#FFFFFF',
-            borderRadius: contentBoxBorderRadius,
-            opacity: contentBox.opacity,
-            pointerEvents: 'none',
-            boxSizing: 'border-box',
-            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
-          }}
-        />
-
-        {/* Textos Principais */}
-        <TextElement config={texts.title} />
-        <TextElement config={texts.subtitle} />
+        {contentBox.enabled !== false && (
+          <>
+            <div
+              style={{
+                position: 'absolute',
+                left: `${contentBox.x}px`,
+                top: `${contentBox.y}px`,
+                width: `${contentBox.width}px`,
+                height: `${contentBox.height}px`,
+                background: typeof contentBox.background === 'string'
+                  ? contentBox.background
+                  : contentBox.background.type === 'gradient'
+                    ? `linear-gradient(to ${contentBox.background.direction || 'right'}, ${contentBox.background.start}, ${contentBox.background.end})`
+                    : contentBox.background.color || '#FFFFFF',
+                borderRadius: contentBoxBorderRadius,
+                opacity: contentBox.opacity,
+                pointerEvents: 'none',
+                boxSizing: 'border-box',
+                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
+              }}
+            />
+            {/* Textos Principais */}
+            <TextElement config={texts.title} />
+            <TextElement config={texts.subtitle} />
+          </>
+        )}
 
         {/* Logo */}
         <LogoElement config={logo} />
 
         {/* Retângulo Inferior */}
-        <Shape config={bottomBar} />
-        {texts.bottomText && <TextElement config={texts.bottomText} containerBar={bottomBar} />}
+        {bottomBar.enabled !== false && (
+          <>
+            <Shape config={bottomBar} />
+            {texts.bottomText && <TextElement config={texts.bottomText} containerBar={bottomBar} />}
+          </>
+        )}
       </div>
     </div>
   </OverlayCanvas>

@@ -57,7 +57,8 @@ export const DEFAULT_OVERLAY_CONFIG: OverlayConfig = {
       topRight: 25,
       bottomRight: 0,
       bottomLeft: 0
-    }
+    },
+    enabled: true
   },
   contentBox: {
     x: 220,
@@ -71,7 +72,8 @@ export const DEFAULT_OVERLAY_CONFIG: OverlayConfig = {
       bottomRight: 0,
       bottomLeft: 0
     },
-    opacity: 1
+    opacity: 1,
+    enabled: true
   },
   bottomBar: {
     x: 220,
@@ -89,7 +91,8 @@ export const DEFAULT_OVERLAY_CONFIG: OverlayConfig = {
       topRight: 0,
       bottomRight: 0,
       bottomLeft: 0
-    }
+    },
+    enabled: true
   },
   logo: {
     url: null,

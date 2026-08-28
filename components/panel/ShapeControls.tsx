@@ -29,9 +29,27 @@ export function ShapeControls({ label, config, onChange }: ShapeControlsProps) {
     return 'background' in cfg && typeof cfg.background === 'object';
   };
 
+  const isEnabled = config.enabled !== false;
+
   return (
     <div className="bg-slate-900 border border-slate-800 rounded-xl p-4 flex flex-col gap-4">
-      <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider">{label}</h3>
+      <div className="flex items-center justify-between border-b border-slate-800/60 pb-3">
+        <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider">{label}</h3>
+        <div className="flex items-center gap-2">
+          <span className="text-[10px] text-slate-500 font-semibold">{isEnabled ? 'ATIVADO' : 'DESATIVADO'}</span>
+          <label className="relative inline-flex items-center cursor-pointer">
+            <input
+              type="checkbox"
+              checked={isEnabled}
+              onChange={(e) => updateProp('enabled', e.target.checked, true)}
+              className="sr-only peer"
+            />
+            <div className="w-8 h-4 bg-slate-950 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-blue-600"></div>
+          </label>
+        </div>
+      </div>
+
+      <div className={`flex flex-col gap-4 transition-all duration-200 ${!isEnabled ? 'opacity-40 pointer-events-none select-none' : ''}`}>
       
       {/* Position and Size */}
       <div className="grid grid-cols-2 gap-3">
@@ -248,6 +266,7 @@ export function ShapeControls({ label, config, onChange }: ShapeControlsProps) {
           </div>
         </div>
       </div>
+    </div>
     </div>
   );
 }

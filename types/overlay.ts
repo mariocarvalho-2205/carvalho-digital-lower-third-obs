@@ -71,6 +71,7 @@ export interface BarConfig {
   height: number;
   background: BackgroundConfig;
   radius: CornerRadiusConfig;
+  enabled?: boolean;
 }
 
 export interface ContentBoxConfig {
@@ -81,6 +82,7 @@ export interface ContentBoxConfig {
   background: string | BackgroundConfig;
   radius: CornerRadiusConfig;
   opacity: number;
+  enabled?: boolean;
 }
 
 export interface LogoConfig {
