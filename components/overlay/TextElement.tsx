@@ -15,6 +15,7 @@ export function TextElement({ config, containerBar }: TextElementProps) {
     fontWeight,
     color,
     fontFamily,
+    textTransform,
     scrollEnabled,
     scrollSpeed = 20,
     scrollSeparatorLogoUrl,
@@ -23,11 +24,36 @@ export function TextElement({ config, containerBar }: TextElementProps) {
     scrollSeparatorMargin = 30
   } = config;
 
+  // All text transforms are done in JS so the effect is always visible,
+  // regardless of what the user originally typed.
+  const applyTextTransform = (str: string): string => {
+    switch (textTransform) {
+      case 'uppercase':
+        return str.toUpperCase();
+      case 'lowercase':
+        return str.toLowerCase();
+      case 'capitalize':
+        // lowercase all first, then uppercase the first letter of each word
+        return str.toLowerCase().replace(/(?:^|\s)\S/g, (ch) => ch.toUpperCase());
+      case 'sentence':
+        // lowercase all first, then uppercase the first letter of each sentence
+        return str.toLowerCase().replace(/(^|[.!?]\s+)([a-zA-ZÀ-ú])/g, (m, sep, ch) => sep + ch.toUpperCase());
+      default:
+        return str;
+    }
+  };
+
+  const displayContent = applyTextTransform(content);
+
+  // No CSS textTransform needed — all handled in JS above
+  const cssTextTransform: React.CSSProperties['textTransform'] = 'none';
+
   const getTextStyle = (): CSSProperties => {
     const baseStyle: CSSProperties = {
       fontSize: `${fontSize}px`,
       fontWeight: fontWeight,
       fontFamily: fontFamily || 'Arial',
+      textTransform: cssTextTransform,
       lineHeight: 1.2,
       userSelect: 'none',
       pointerEvents: 'none',
@@ -96,7 +122,7 @@ export function TextElement({ config, containerBar }: TextElementProps) {
           paddingRight: `${scrollSeparatorMargin}px`
         }}
       >
-        <span style={getTextStyle()}>{content}</span>
+        <span style={getTextStyle()}>{displayContent}</span>
         {scrollSeparatorLogoUrl ? (
           <img
             src={scrollSeparatorLogoUrl}
@@ -177,7 +203,7 @@ export function TextElement({ config, containerBar }: TextElementProps) {
         ...staticWidthStyle
       }}
     >
-      <div style={getTextStyle()}>{content}</div>
+      <div style={getTextStyle()}>{displayContent}</div>
     </div>
   );
 }

@@ -33,6 +33,7 @@ export interface TextPropertyConfig {
   /** Can be a plain hex string (legacy) or a TextColor object */
   color: string | TextColor;
   maxWidth?: number; // Optional right boundary limit / max width in pixels
+  textTransform?: 'none' | 'uppercase' | 'lowercase' | 'capitalize' | 'sentence';
   // Scrolling options (especially for bottomText ticker)
   scrollEnabled?: boolean;
   scrollSpeed?: number; // seconds for full loop or px/sec

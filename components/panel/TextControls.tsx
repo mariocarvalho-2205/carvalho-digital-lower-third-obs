@@ -219,6 +219,46 @@ export function TextControls({ config, onChange, slug = 'default' }: TextControl
         />
       </div>
 
+      {/* Text Transform */}
+      <div className="flex flex-col gap-1.5">
+        <label className="text-xs text-slate-400 font-medium">Capitalização do Texto</label>
+        <div className="flex gap-1.5">
+          {([
+            { value: 'none',       label: 'Aa',    title: 'Original (sem transformação)' },
+            { value: 'uppercase',  label: 'AA',    title: 'TODAS EM MAIÚSCULAS' },
+            { value: 'lowercase',  label: 'aa',    title: 'todas em minúsculas' },
+            { value: 'capitalize', label: 'Aa Bb', title: 'Primeira De Cada Palavra' },
+            { value: 'sentence',   label: 'Aa bb', title: 'Primeira da frase maiúscula' },
+          ] as { value: string; label: string; title: string }[]).map((opt) => {
+            const isActive = (targetConfig.textTransform ?? 'none') === opt.value;
+            return (
+              <button
+                key={opt.value}
+                title={opt.title}
+                type="button"
+                onClick={() => updateTargetField('textTransform', opt.value as any)}
+                className={`flex-1 py-2 px-0.5 rounded-lg text-[11px] font-bold border transition-all ${
+                  isActive
+                    ? 'bg-blue-600 border-blue-500 text-white shadow-md shadow-blue-900/30'
+                    : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white hover:border-slate-600'
+                }`}
+              >
+                {opt.label}
+              </button>
+            );
+          })}
+        </div>
+        <span className="text-[10px] text-slate-600 leading-tight">
+          {({
+            none: 'Sem transformação — exibe o texto como digitado',
+            uppercase: 'TEXTO EM MAIÚSCULAS',
+            lowercase: 'texto em minúsculas',
+            capitalize: 'Primeira Letra De Cada Palavra',
+            sentence: 'Primeira letra da frase maiúscula',
+          } as Record<string, string>)[targetConfig.textTransform ?? 'none']}
+        </span>
+      </div>
+
       {/* Font Family & Weight */}
       <div className="grid grid-cols-2 gap-3">
         <div className="flex flex-col gap-1.5">

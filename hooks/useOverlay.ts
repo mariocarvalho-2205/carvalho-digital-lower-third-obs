@@ -28,6 +28,7 @@ function mergeConfig(dbConfig: any): OverlayConfig {
         scrollSeparatorLogoWidth: dbConfig.texts?.title?.scrollSeparatorLogoWidth ?? 24,
         scrollSeparatorLogoHeight: dbConfig.texts?.title?.scrollSeparatorLogoHeight ?? 24,
         scrollSeparatorMargin: dbConfig.texts?.title?.scrollSeparatorMargin ?? 30,
+        textTransform: dbConfig.texts?.title?.textTransform ?? 'none',
       },
       subtitle: {
         content: dbConfig.texts?.subtitle?.content ?? defaults.texts.subtitle.content,
@@ -44,6 +45,7 @@ function mergeConfig(dbConfig: any): OverlayConfig {
         scrollSeparatorLogoWidth: dbConfig.texts?.subtitle?.scrollSeparatorLogoWidth ?? 24,
         scrollSeparatorLogoHeight: dbConfig.texts?.subtitle?.scrollSeparatorLogoHeight ?? 24,
         scrollSeparatorMargin: dbConfig.texts?.subtitle?.scrollSeparatorMargin ?? 30,
+        textTransform: dbConfig.texts?.subtitle?.textTransform ?? 'none',
       },
       topText: {
         content: dbConfig.texts?.topText?.content ?? defaults.texts.topText?.content ?? "AO VIVO",
@@ -60,6 +62,7 @@ function mergeConfig(dbConfig: any): OverlayConfig {
         scrollSeparatorLogoWidth: dbConfig.texts?.topText?.scrollSeparatorLogoWidth ?? 24,
         scrollSeparatorLogoHeight: dbConfig.texts?.topText?.scrollSeparatorLogoHeight ?? 24,
         scrollSeparatorMargin: dbConfig.texts?.topText?.scrollSeparatorMargin ?? 30,
+        textTransform: dbConfig.texts?.topText?.textTransform ?? 'none',
       },
       bottomText: {
         content: dbConfig.texts?.bottomText?.content ?? defaults.texts.bottomText?.content ?? "CARVALHO DIGITAL STREAM",
@@ -76,6 +79,7 @@ function mergeConfig(dbConfig: any): OverlayConfig {
         scrollSeparatorLogoWidth: dbConfig.texts?.bottomText?.scrollSeparatorLogoWidth ?? 24,
         scrollSeparatorLogoHeight: dbConfig.texts?.bottomText?.scrollSeparatorLogoHeight ?? 24,
         scrollSeparatorMargin: dbConfig.texts?.bottomText?.scrollSeparatorMargin ?? 30,
+        textTransform: dbConfig.texts?.bottomText?.textTransform ?? 'none',
       },
     },
     topBar: {
