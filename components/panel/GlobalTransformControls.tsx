@@ -4,7 +4,7 @@ import { Move, Maximize2 } from 'lucide-react';
 
 interface GlobalTransformControlsProps {
   config?: GlobalTransformConfig;
-  onChange: (transform: GlobalTransformConfig) => void;
+  onChange: (transform: GlobalTransformConfig, commit?: boolean) => void;
 }
 
 export function GlobalTransformControls({ config, onChange }: GlobalTransformControlsProps) {

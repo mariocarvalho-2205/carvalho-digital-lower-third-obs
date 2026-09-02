@@ -4,7 +4,7 @@ import { createClient } from '../../lib/supabase/client';
 
 interface LogoControlsProps {
   config: LogoConfig;
-  onChange: (logo: LogoConfig) => void;
+  onChange: (logo: LogoConfig, commit?: boolean) => void;
   slug: string;
 }
 
