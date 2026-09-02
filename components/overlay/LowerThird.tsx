@@ -14,10 +14,10 @@ interface LowerThirdProps {
 export function LowerThird({ config, isActive, isPreview = false }: LowerThirdProps) {
   const { topBar, contentBox, bottomBar, texts, logo, animation } = config;
 
-  // In preview mode, always show all elements regardless of their enabled state
-  const isTopBarEnabled = isPreview ? true : (topBar.enabled !== false);
-  const isContentBoxEnabled = isPreview ? true : (contentBox.enabled !== false);
-  const isBottomBarEnabled = isPreview ? true : (bottomBar.enabled !== false);
+  // Obey the enabled state even in preview mode so the user can see what's hidden
+  const isTopBarEnabled = topBar.enabled !== false;
+  const isContentBoxEnabled = contentBox.enabled !== false;
+  const isBottomBarEnabled = bottomBar.enabled !== false;
 
   // Generate a stable unique suffix for this instance's keyframes
   // so multiple simultaneous variations don't clobber each other's animation styles.

@@ -17,14 +17,37 @@ export function LivePreview({ config, isActive, isPreviewActive, activeVariation
   const [referenceOpacity, setReferenceOpacity] = useState<number>(0.5);
   const [referenceVisible, setReferenceVisible] = useState<boolean>(true);
 
+  // Carrega configurações locais ao iniciar
+  React.useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const savedImage = localStorage.getItem(`referenceImage_${config.canvas.width}x${config.canvas.height}`);
+      if (savedImage) setReferenceImage(savedImage);
+      
+      const savedOpacity = localStorage.getItem('referenceOpacity');
+      if (savedOpacity) setReferenceOpacity(parseFloat(savedOpacity));
+      
+      const savedVisible = localStorage.getItem('referenceVisible');
+      if (savedVisible) setReferenceVisible(savedVisible === 'true');
+    }
+  }, [config.canvas.width, config.canvas.height]);
+
   const handleReferenceUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || e.target.files.length === 0) return;
     const file = e.target.files[0];
     const reader = new FileReader();
     reader.onload = (event) => {
       if (event.target?.result) {
-        setReferenceImage(event.target.result as string);
+        const resultString = event.target.result as string;
+        setReferenceImage(resultString);
         setReferenceVisible(true);
+        if (typeof window !== 'undefined') {
+          try {
+            localStorage.setItem(`referenceImage_${config.canvas.width}x${config.canvas.height}`, resultString);
+            localStorage.setItem('referenceVisible', 'true');
+          } catch (e) {
+            console.warn('Não foi possível salvar a imagem no localStorage (pode ser muito grande)', e);
+          }
+        }
       }
     };
     reader.readAsDataURL(file);
@@ -32,6 +55,23 @@ export function LivePreview({ config, isActive, isPreviewActive, activeVariation
 
   const handleRemoveReference = () => {
     setReferenceImage(null);
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem(`referenceImage_${config.canvas.width}x${config.canvas.height}`);
+    }
+  };
+
+  const handleOpacityChange = (value: number) => {
+    setReferenceOpacity(value);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('referenceOpacity', value.toString());
+    }
+  };
+
+  const handleVisibleChange = (value: boolean) => {
+    setReferenceVisible(value);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('referenceVisible', value.toString());
+    }
   };
 
   return (
@@ -125,14 +165,14 @@ export function LivePreview({ config, isActive, isPreviewActive, activeVariation
                 max="1"
                 step="0.05"
                 value={referenceOpacity}
-                onChange={(e) => setReferenceOpacity(parseFloat(e.target.value))}
+                onChange={(e) => handleOpacityChange(parseFloat(e.target.value))}
                 className="w-20 h-1 bg-slate-950 rounded-lg appearance-none cursor-pointer accent-blue-500"
               />
             </div>
 
             <button
               type="button"
-              onClick={() => setReferenceVisible(!referenceVisible)}
+              onClick={() => handleVisibleChange(!referenceVisible)}
               className={`p-1.5 rounded border transition-colors flex items-center gap-1 text-[11px] ${
                 referenceVisible
                   ? 'bg-blue-500/10 border-blue-500/30 text-blue-400'

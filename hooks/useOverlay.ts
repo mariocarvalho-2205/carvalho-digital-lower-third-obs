@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { createClient } from '../lib/supabase/client';
 import { OverlayData, OverlayConfig } from '../types/overlay';
 import { DEFAULT_OVERLAY_CONFIG } from '../lib/overlay-defaults';
@@ -399,22 +399,48 @@ export function useOverlay(slug: string) {
     }
   }, [slug, supabase, setOverlay]);
 
+  // Reference to hold the debounce timer
+  const updateTimerRef = React.useRef<NodeJS.Timeout | null>(null);
+  // Reference to hold the latest pending updates to ensure we always save the most recent state
+  const pendingUpdatesRef = React.useRef<Partial<OverlayData>>({});
+
   const updateOverlay = async (updates: Partial<OverlayData>) => {
     if (!overlay) return;
     try {
-      // Optimistic update
+      // Optimistic update immediately
       setOverlay(prev => prev ? { ...prev, ...updates } : null);
 
-      const { error } = await supabase
-        .from('overlays')
-        .update(updates)
-        .eq('slug', slug);
+      // Accumulate updates
+      pendingUpdatesRef.current = { ...pendingUpdatesRef.current, ...updates };
 
-      if (error) throw error;
+      // Clear existing timer
+      if (updateTimerRef.current) {
+        clearTimeout(updateTimerRef.current);
+      }
+
+      // Set new debounce timer (1 second)
+      updateTimerRef.current = setTimeout(async () => {
+        const payloadToSave = { ...pendingUpdatesRef.current };
+        pendingUpdatesRef.current = {}; // reset
+        
+        try {
+          const { error } = await supabase
+            .from('overlays')
+            .update(payloadToSave)
+            .eq('slug', slug);
+
+          if (error) throw error;
+        } catch (err: any) {
+          console.error('Error in delayed overlay update:', err);
+          setError(err.message || 'Erro ao atualizar overlay');
+          // Rollback on error
+          fetchOverlay();
+        }
+      }, 1000);
+      
     } catch (err: any) {
       console.error('Error updating overlay:', err);
       setError(err.message || 'Erro ao atualizar overlay');
-      // Rollback on error by re-fetching
       fetchOverlay();
     }
   };
