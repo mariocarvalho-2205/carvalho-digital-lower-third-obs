@@ -162,41 +162,37 @@ export function TextControls({ config, onChange, slug = 'default' }: TextControl
       <div className="grid grid-cols-2 md:grid-cols-4 border-b border-slate-800 pb-3 gap-2">
         <button
           onClick={() => setActiveSection('topText')}
-          className={`py-2 px-2.5 rounded-lg text-xs font-bold transition-all ${
-            activeSection === 'topText'
-              ? 'bg-blue-600 text-white shadow-md'
-              : 'bg-slate-950 text-slate-400 hover:text-white border border-slate-800'
-          }`}
+          className={`py-2 px-2.5 rounded-lg text-xs font-bold transition-all ${activeSection === 'topText'
+            ? 'bg-blue-600 text-white shadow-md'
+            : 'bg-slate-950 text-slate-400 hover:text-white border border-slate-800'
+            }`}
         >
           Texto Superior
         </button>
         <button
           onClick={() => setActiveSection('title')}
-          className={`py-2 px-2.5 rounded-lg text-xs font-bold transition-all ${
-            activeSection === 'title'
-              ? 'bg-blue-600 text-white shadow-md'
-              : 'bg-slate-950 text-slate-400 hover:text-white border border-slate-800'
-          }`}
+          className={`py-2 px-2.5 rounded-lg text-xs font-bold transition-all ${activeSection === 'title'
+            ? 'bg-blue-600 text-white shadow-md'
+            : 'bg-slate-950 text-slate-400 hover:text-white border border-slate-800'
+            }`}
         >
           Título Principal
         </button>
         <button
           onClick={() => setActiveSection('subtitle')}
-          className={`py-2 px-2.5 rounded-lg text-xs font-bold transition-all ${
-            activeSection === 'subtitle'
-              ? 'bg-blue-600 text-white shadow-md'
-              : 'bg-slate-950 text-slate-400 hover:text-white border border-slate-800'
-          }`}
+          className={`py-2 px-2.5 rounded-lg text-xs font-bold transition-all ${activeSection === 'subtitle'
+            ? 'bg-blue-600 text-white shadow-md'
+            : 'bg-slate-950 text-slate-400 hover:text-white border border-slate-800'
+            }`}
         >
           Subtítulo / Cargo
         </button>
         <button
           onClick={() => setActiveSection('bottomText')}
-          className={`py-2 px-2.5 rounded-lg text-xs font-bold transition-all ${
-            activeSection === 'bottomText'
-              ? 'bg-blue-600 text-white shadow-md'
-              : 'bg-slate-950 text-slate-400 hover:text-white border border-slate-800'
-          }`}
+          className={`py-2 px-2.5 rounded-lg text-xs font-bold transition-all ${activeSection === 'bottomText'
+            ? 'bg-blue-600 text-white shadow-md'
+            : 'bg-slate-950 text-slate-400 hover:text-white border border-slate-800'
+            }`}
         >
           Texto Inferior
         </button>
@@ -215,6 +211,12 @@ export function TextControls({ config, onChange, slug = 'default' }: TextControl
               updateTargetField('content', e.currentTarget.value, true);
             }
           }}
+          placeholder={
+            activeSection === 'topText' ? 'Máx. 16 caracteres' :
+            activeSection === 'title' ? 'Máx. 40 caracteres' :
+            activeSection === 'subtitle' ? 'Máx. 70 caracteres' :
+            'Insira o texto'
+          }
           className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-100 placeholder-slate-600 focus:outline-none focus:border-blue-500"
         />
       </div>
@@ -224,11 +226,11 @@ export function TextControls({ config, onChange, slug = 'default' }: TextControl
         <label className="text-xs text-slate-400 font-medium">Capitalização do Texto</label>
         <div className="flex gap-1.5">
           {([
-            { value: 'none',       label: 'Aa',    title: 'Original (sem transformação)' },
-            { value: 'uppercase',  label: 'AA',    title: 'TODAS EM MAIÚSCULAS' },
-            { value: 'lowercase',  label: 'aa',    title: 'todas em minúsculas' },
+            { value: 'none', label: 'Aa', title: 'Original (sem transformação)' },
+            { value: 'uppercase', label: 'AA', title: 'TODAS EM MAIÚSCULAS' },
+            { value: 'lowercase', label: 'aa', title: 'todas em minúsculas' },
             { value: 'capitalize', label: 'Aa Bb', title: 'Primeira De Cada Palavra' },
-            { value: 'sentence',   label: 'Aa bb', title: 'Primeira da frase maiúscula' },
+            { value: 'sentence', label: 'Aa bb', title: 'Primeira da frase maiúscula' },
           ] as { value: string; label: string; title: string }[]).map((opt) => {
             const isActive = (targetConfig.textTransform ?? 'none') === opt.value;
             return (
@@ -237,11 +239,10 @@ export function TextControls({ config, onChange, slug = 'default' }: TextControl
                 title={opt.title}
                 type="button"
                 onClick={() => updateTargetField('textTransform', opt.value as any)}
-                className={`flex-1 py-2 px-0.5 rounded-lg text-[11px] font-bold border transition-all ${
-                  isActive
-                    ? 'bg-blue-600 border-blue-500 text-white shadow-md shadow-blue-900/30'
-                    : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white hover:border-slate-600'
-                }`}
+                className={`flex-1 py-2 px-0.5 rounded-lg text-[11px] font-bold border transition-all ${isActive
+                  ? 'bg-blue-600 border-blue-500 text-white shadow-md shadow-blue-900/30'
+                  : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white hover:border-slate-600'
+                  }`}
               >
                 {opt.label}
               </button>
@@ -360,33 +361,30 @@ export function TextControls({ config, onChange, slug = 'default' }: TextControl
       {/* Color Section */}
       <div className="flex flex-col gap-3 pt-2 border-t border-slate-800">
         <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider">Estilo de Cor e Preenchimento</label>
-        
+
         {/* Mode Selector */}
         <div className="flex bg-slate-950 border border-slate-800 p-1 rounded-lg gap-1">
           <button
             type="button"
             onClick={() => handleModeChange('solid')}
-            className={`flex-1 py-1.5 rounded text-[11px] font-bold transition-all ${
-              currentMode === 'solid' ? 'bg-slate-800 text-white' : 'text-slate-500 hover:text-slate-300'
-            }`}
+            className={`flex-1 py-1.5 rounded text-[11px] font-bold transition-all ${currentMode === 'solid' ? 'bg-slate-800 text-white' : 'text-slate-500 hover:text-slate-300'
+              }`}
           >
             Sólida
           </button>
           <button
             type="button"
             onClick={() => handleModeChange('linear')}
-            className={`flex-1 py-1.5 rounded text-[11px] font-bold transition-all ${
-              currentMode === 'linear' ? 'bg-slate-800 text-white' : 'text-slate-500 hover:text-slate-300'
-            }`}
+            className={`flex-1 py-1.5 rounded text-[11px] font-bold transition-all ${currentMode === 'linear' ? 'bg-slate-800 text-white' : 'text-slate-500 hover:text-slate-300'
+              }`}
           >
             Gradiente Linear
           </button>
           <button
             type="button"
             onClick={() => handleModeChange('radial')}
-            className={`flex-1 py-1.5 rounded text-[11px] font-bold transition-all ${
-              currentMode === 'radial' ? 'bg-slate-800 text-white' : 'text-slate-500 hover:text-slate-300'
-            }`}
+            className={`flex-1 py-1.5 rounded text-[11px] font-bold transition-all ${currentMode === 'radial' ? 'bg-slate-800 text-white' : 'text-slate-500 hover:text-slate-300'
+              }`}
           >
             Gradiente Radial
           </button>
