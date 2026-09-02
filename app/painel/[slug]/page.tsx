@@ -2,7 +2,6 @@
 
 import React from 'react';
 import { useOverlay } from '@/hooks/useOverlay';
-import { useOverlayRealtime } from '@/hooks/useOverlayRealtime';
 import { ControlPanel } from '@/components/panel/ControlPanel';
 import { useParams } from 'next/navigation';
 import { LayoutGrid, ArrowLeft } from 'lucide-react';
@@ -12,12 +11,13 @@ export default function PainelPage() {
   const params = useParams();
   const slug = params?.slug as string || 'ba-ao-vivo';
 
-  const { overlay, setOverlay, loading, error, updateOverlay } = useOverlay(slug);
+  const { overlay, setOverlay, loading, error, updateOverlay, flushAndUpdate } = useOverlay(slug);
 
-  // Subscribe to real-time changes so external edits are immediately visible in the form
-  useOverlayRealtime(slug, (newOverlay) => {
-    setOverlay(newOverlay);
-  });
+  // NOTE: Realtime listener was intentionally REMOVED from the panel page.
+  // The panel is the SOURCE of changes — it already holds the most up-to-date
+  // state locally. Listening to realtime here caused a race condition where
+  // stale data from the database would overwrite unsaved local edits (e.g.,
+  // new variations) whenever the debounced save hadn't completed yet.
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-blue-500/20">
@@ -60,6 +60,7 @@ export default function PainelPage() {
           <ControlPanel
             overlay={overlay}
             onUpdate={updateOverlay}
+            onFlushUpdate={flushAndUpdate}
             slug={slug}
           />
         ) : null}

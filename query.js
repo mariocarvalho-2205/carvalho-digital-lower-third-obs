@@ -8,13 +8,14 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 async function main() {
   const { data, error } = await supabase
     .from('overlays')
-    .select('id, slug, name, created_at, updated_at')
-    .order('created_at', { ascending: false });
+    .select('config')
+    .eq('slug', 'ba-ao-vivo')
+    .single();
 
   if (error) {
     console.error(error);
   } else {
-    console.log(JSON.stringify(data, null, 2));
+    console.log(JSON.stringify(data.config.variations.map(v => v.name), null, 2));
   }
 }
 

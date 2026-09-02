@@ -14,12 +14,13 @@ import { Sliders, Monitor, Eye, Image as ImageIcon, Type, Sparkles, Move } from 
 interface ControlPanelProps {
   overlay: OverlayData;
   onUpdate: (updates: Partial<OverlayData>) => Promise<void>;
+  onFlushUpdate: (updates: Partial<OverlayData>) => Promise<void>;
   slug: string;
 }
 
 type TabType = 'global' | 'visual' | 'text' | 'logo' | 'animation';
 
-export function ControlPanel({ overlay, onUpdate, slug }: ControlPanelProps) {
+export function ControlPanel({ overlay, onUpdate, onFlushUpdate, slug }: ControlPanelProps) {
   const [activeTab, setActiveTab] = useState<TabType>('text');
   const [isPreviewActive, setIsPreviewActive] = useState<boolean>(true);
   const [localConfig, setLocalConfig] = React.useState<OverlayConfig>(overlay.config);
@@ -103,7 +104,7 @@ export function ControlPanel({ overlay, onUpdate, slug }: ControlPanelProps) {
     };
 
     setLocalConfig(updatedConfig);
-    onUpdate({ config: updatedConfig });
+    onFlushUpdate({ config: updatedConfig });
   };
 
   // Create a new variation
@@ -138,7 +139,7 @@ export function ControlPanel({ overlay, onUpdate, slug }: ControlPanelProps) {
     };
 
     setLocalConfig(updatedConfig);
-    onUpdate({ config: updatedConfig });
+    onFlushUpdate({ config: updatedConfig });
     setActiveVariationId(newVar.id);
   };
 
@@ -160,7 +161,7 @@ export function ControlPanel({ overlay, onUpdate, slug }: ControlPanelProps) {
     };
 
     setLocalConfig(updatedConfig);
-    onUpdate({ config: updatedConfig });
+    onFlushUpdate({ config: updatedConfig });
   };
 
   // Delete variation
@@ -177,7 +178,7 @@ export function ControlPanel({ overlay, onUpdate, slug }: ControlPanelProps) {
     };
 
     setLocalConfig(updatedConfig);
-    onUpdate({ config: updatedConfig });
+    onFlushUpdate({ config: updatedConfig });
     if (activeVariationId === id) {
       setActiveVariationId(null);
     }
@@ -235,7 +236,7 @@ export function ControlPanel({ overlay, onUpdate, slug }: ControlPanelProps) {
             if (currentVariation) {
               handleToggleVariationActive(currentVariation.id, !currentVariation.is_active);
             } else {
-              onUpdate({ is_active: !overlay.is_active });
+              onFlushUpdate({ is_active: !overlay.is_active });
             }
           }}
           isPreviewActive={isPreviewActive}

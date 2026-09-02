@@ -404,6 +404,23 @@ export function useOverlay(slug: string) {
   // Reference to hold the latest pending updates to ensure we always save the most recent state
   const pendingUpdatesRef = React.useRef<Partial<OverlayData>>({});
 
+  // Internal function that actually sends data to Supabase
+  const saveToSupabase = async (payload: Partial<OverlayData>) => {
+    try {
+      const { error } = await supabase
+        .from('overlays')
+        .update(payload)
+        .eq('slug', slug);
+
+      if (error) throw error;
+    } catch (err: any) {
+      console.error('Error saving overlay:', err);
+      setError(err.message || 'Erro ao atualizar overlay');
+      fetchOverlay();
+    }
+  };
+
+  // Debounced update — for frequent changes like sliders, color pickers, text typing
   const updateOverlay = async (updates: Partial<OverlayData>) => {
     if (!overlay) return;
     try {
@@ -422,20 +439,7 @@ export function useOverlay(slug: string) {
       updateTimerRef.current = setTimeout(async () => {
         const payloadToSave = { ...pendingUpdatesRef.current };
         pendingUpdatesRef.current = {}; // reset
-        
-        try {
-          const { error } = await supabase
-            .from('overlays')
-            .update(payloadToSave)
-            .eq('slug', slug);
-
-          if (error) throw error;
-        } catch (err: any) {
-          console.error('Error in delayed overlay update:', err);
-          setError(err.message || 'Erro ao atualizar overlay');
-          // Rollback on error
-          fetchOverlay();
-        }
+        await saveToSupabase(payloadToSave);
       }, 1000);
       
     } catch (err: any) {
@@ -445,10 +449,37 @@ export function useOverlay(slug: string) {
     }
   };
 
+  // Immediate update — for critical actions like OBS toggle, create/delete variation
+  // Flushes any pending debounced changes AND the new updates in a single save
+  const flushAndUpdate = async (updates: Partial<OverlayData>) => {
+    if (!overlay) return;
+    try {
+      // Optimistic update immediately
+      setOverlay(prev => prev ? { ...prev, ...updates } : null);
+
+      // Cancel any pending debounce timer
+      if (updateTimerRef.current) {
+        clearTimeout(updateTimerRef.current);
+        updateTimerRef.current = null;
+      }
+
+      // Merge any pending changes with the new updates
+      const combinedPayload = { ...pendingUpdatesRef.current, ...updates };
+      pendingUpdatesRef.current = {}; // reset
+
+      // Save immediately (no debounce)
+      await saveToSupabase(combinedPayload);
+    } catch (err: any) {
+      console.error('Error in flush update:', err);
+      setError(err.message || 'Erro ao atualizar overlay');
+      fetchOverlay();
+    }
+  };
+
   useEffect(() => {
     fetchOverlay();
   }, [fetchOverlay]);
 
-  return { overlay, setOverlay, loading, error, updateOverlay, refetch: fetchOverlay };
+  return { overlay, setOverlay, loading, error, updateOverlay, flushAndUpdate, refetch: fetchOverlay };
 }
 
