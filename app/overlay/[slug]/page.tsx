@@ -19,11 +19,11 @@ export default function OverlayPage() {
   const params = useParams();
   const slug = (params?.slug as string) || 'ba-ao-vivo';
 
-  const { overlay, setOverlay, loading, error, refetch } = useOverlay(slug);
+  const { overlay, setOverlay, loading, error } = useOverlay(slug);
 
   useOverlayRealtime(slug, overlay?.id, (newOverlay) => {
     setOverlay(newOverlay);
-  }, refetch);
+  });
 
   // Always render the style tag so the background is transparent from first paint.
   const styleTag = <style dangerouslySetInnerHTML={{ __html: TRANSPARENT_STYLE }} />;
