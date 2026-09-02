@@ -8,8 +8,12 @@ export function useOverlayRealtime(
   onUpdate: (newData: OverlayData | ((prev: OverlayData | null) => OverlayData | null)) => void
 ) {
   useEffect(() => {
-    if (!overlayId) return;
+    if (!overlayId) {
+      console.log('[Realtime] Skipping - no overlayId');
+      return;
+    }
 
+    console.log('[Realtime] Setting up realtime listener for:', { slug, overlayId });
     const supabase = createClient();
 
     const channel = supabase
@@ -23,7 +27,14 @@ export function useOverlayRealtime(
           filter: `slug=eq.${slug}`
         },
         (payload) => {
-          onUpdate(payload.new as OverlayData);
+          // Merge with existing state to preserve variations array
+          onUpdate((prev) => {
+            if (!prev) return payload.new as OverlayData;
+            return {
+              ...payload.new,
+              variations: prev.variations // Keep existing variations
+            } as OverlayData;
+          });
         }
       )
       .on(
@@ -50,13 +61,16 @@ export function useOverlayRealtime(
           table: 'variations'
         },
         (payload: any) => {
+          console.log('[Realtime] Variation UPDATE event:', payload);
           if (payload.new?.overlay_id === overlayId) {
+            console.log('[Realtime] Updating variation:', payload.new.id, 'is_active:', payload.new.is_active);
             onUpdate((prev) => {
               if (!prev || !prev.variations) return prev;
               const variationIndex = prev.variations.findIndex(v => v.id === payload.new.id);
               if (variationIndex >= 0) {
                 const updated = [...prev.variations];
                 updated[variationIndex] = payload.new;
+                console.log('[Realtime] Updated variations array:', updated);
                 return { ...prev, variations: updated };
               }
               return prev;

@@ -1,24 +1,94 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { LayoutGrid, Plus, Monitor, ArrowUpRight, Radio, ExternalLink } from 'lucide-react';
+import { createClient } from '@/lib/supabase/client';
+import { DEFAULT_OVERLAY_CONFIG } from '@/lib/overlay-defaults';
 
 export default function Home() {
-  const [slugs, setSlugs] = useState<string[]>(['ba-ao-vivo', 'esportes', 'entrevista']);
+  const [slugs, setSlugs] = useState<string[]>([]);
   const [newSlug, setNewSlug] = useState('');
+  const [loading, setLoading] = useState(true);
 
-  const handleAddOverlay = (e: React.FormEvent) => {
+  const supabase = createClient();
+
+  // Fetch overlays from Supabase
+  useEffect(() => {
+    const fetchOverlays = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('overlays')
+          .select('slug')
+          .order('created_at', { ascending: false });
+
+        if (error) throw error;
+        setSlugs(data?.map((o: any) => o.slug) || []);
+      } catch (err) {
+        console.error('Error fetching overlays:', err);
+        // Fallback to empty list
+        setSlugs([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchOverlays();
+  }, []);
+
+  const handleAddOverlay = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newSlug.trim()) return;
     const formatted = newSlug
       .toLowerCase()
       .trim()
       .replace(/[^a-z0-9]+/g, '-');
-    
-    if (formatted && !slugs.includes(formatted)) {
+
+    if (!formatted || slugs.includes(formatted)) return;
+
+    try {
+      // Create overlay in Supabase with default config
+      const { data: overlayData, error: overlayError } = await supabase
+        .from('overlays')
+        .insert([{
+          slug: formatted,
+          name: formatted.replace(/-/g, ' ').toUpperCase(),
+          config: DEFAULT_OVERLAY_CONFIG,
+          is_active: false
+        }])
+        .select('id')
+        .single();
+
+      if (overlayError) throw overlayError;
+
+      // Create default variation with default config
+      if (overlayData?.id) {
+        const { error: variationError } = await supabase
+          .from('variations')
+          .insert([{
+            overlay_id: overlayData.id,
+            name: 'Variação Padrão',
+            is_active: true,
+            config: {
+              topBar: DEFAULT_OVERLAY_CONFIG.topBar,
+              contentBox: DEFAULT_OVERLAY_CONFIG.contentBox,
+              bottomBar: DEFAULT_OVERLAY_CONFIG.bottomBar,
+              texts: DEFAULT_OVERLAY_CONFIG.texts,
+              logo: DEFAULT_OVERLAY_CONFIG.logo,
+              globalTransform: DEFAULT_OVERLAY_CONFIG.globalTransform
+            },
+            order_index: 0
+          }]);
+
+        if (variationError) console.error('Error creating variation:', variationError);
+      }
+
+      // Add to local list
       setSlugs([...slugs, formatted]);
       setNewSlug('');
+    } catch (err) {
+      console.error('Error creating overlay:', err);
+      alert('Erro ao criar overlay');
     }
   };
 

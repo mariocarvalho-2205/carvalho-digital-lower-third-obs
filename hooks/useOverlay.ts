@@ -186,37 +186,114 @@ export function useOverlay(slug: string) {
   const fetchOverlay = useCallback(async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
+      console.log('[fetchOverlay] Fetching overlay with slug:', slug);
+
+      // Fetch overlay without variations JOIN (separate query)
+      const overlayResult = await supabase
         .from('overlays')
-        .select('*, variations(*)')
+        .select('id, slug, name, config, is_active, created_at, updated_at')
         .eq('slug', slug)
-        .order('order_index', { foreignTable: 'variations' })
         .single();
 
-      if (error) {
-        if (error.code === 'PGRST116') {
-          const defaultData: OverlayData = {
+      console.log('[fetchOverlay] Result:', overlayResult);
+
+      if (overlayResult.error) {
+        if (overlayResult.error.code === 'PGRST116') {
+          // Not found - create default overlay + initial variation
+          const defaultOverlay = {
             slug,
             name: slug.toUpperCase().replace(/-/g, ' '),
             config: DEFAULT_OVERLAY_CONFIG,
-            is_active: false,
-            variations: []
+            is_active: false
           };
 
           const { data: insertedData, error: insertError } = await supabase
             .from('overlays')
-            .insert([defaultData])
-            .select()
+            .insert([defaultOverlay])
+            .select('id, slug, name, config, is_active, created_at, updated_at')
             .single();
 
           if (insertError) {
+            // If overlay already exists (duplicate key), fetch it instead
+            if (insertError.code === '23505') {
+              console.log('Overlay already exists, fetching it...');
+              const existingResult = await supabase
+                .from('overlays')
+                .select('id, slug, name, config, is_active, created_at, updated_at')
+                .eq('slug', slug)
+                .single();
+              if (existingResult.error) throw existingResult.error;
+
+              const data = existingResult.data as any;
+              if (data?.id) {
+                const variationsResult = await supabase
+                  .from('variations')
+                  .select('id, overlay_id, name, is_active, config, order_index, created_at, updated_at')
+                  .eq('overlay_id', data.id)
+                  .order('order_index', { ascending: true });
+
+                data.variations = variationsResult.data || [];
+              }
+              setOverlay(data);
+              return;
+            }
             throw insertError;
           }
-          setOverlay(insertedData);
+
+          // Create initial variation for this overlay
+          if (insertedData?.id) {
+            const defaultVariation = {
+              overlay_id: insertedData.id,
+              name: 'Variação Padrão',
+              is_active: true,
+              config: {
+                topBar: DEFAULT_OVERLAY_CONFIG.topBar,
+                contentBox: DEFAULT_OVERLAY_CONFIG.contentBox,
+                bottomBar: DEFAULT_OVERLAY_CONFIG.bottomBar,
+                texts: DEFAULT_OVERLAY_CONFIG.texts,
+                logo: DEFAULT_OVERLAY_CONFIG.logo,
+                globalTransform: DEFAULT_OVERLAY_CONFIG.globalTransform
+              },
+              order_index: 0
+            };
+
+            const { data: variation, error: variationError } = await supabase
+              .from('variations')
+              .insert([defaultVariation])
+              .select()
+              .single();
+
+            if (!variationError && variation) {
+              (insertedData as any).variations = [variation];
+            } else {
+              (insertedData as any).variations = [];
+            }
+          }
+
+          setOverlay(insertedData as any);
         } else {
-          throw error;
+          throw overlayResult.error;
         }
       } else {
+        // Fetch variations separately
+        const data = overlayResult.data as any;
+
+        if (data?.id) {
+          const variationsResult = await supabase
+            .from('variations')
+            .select('id, overlay_id, name, is_active, config, order_index, created_at, updated_at')
+            .eq('overlay_id', data.id)
+            .order('order_index', { ascending: true });
+
+          if (!variationsResult.error && variationsResult.data) {
+            data.variations = variationsResult.data;
+          } else {
+            data.variations = [];
+          }
+        } else {
+          data.variations = [];
+        }
+
         setOverlay(data);
       }
     } catch (err: any) {

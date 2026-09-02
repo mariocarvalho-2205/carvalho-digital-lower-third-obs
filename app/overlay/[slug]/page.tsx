@@ -1,5 +1,6 @@
 'use client';
 
+import { useCallback } from 'react';
 import { useOverlay } from '@/hooks/useOverlay';
 import { useOverlayRealtime } from '@/hooks/useOverlayRealtime';
 import { LowerThird } from '@/components/overlay/LowerThird';
@@ -21,9 +22,12 @@ export default function OverlayPage() {
 
   const { overlay, setOverlay, loading, error } = useOverlay(slug);
 
-  useOverlayRealtime(slug, overlay?.id, (newOverlay) => {
+  const handleRealtimeUpdate = useCallback((newOverlay: any) => {
+    console.log('[Realtime] Variation update received:', newOverlay);
     setOverlay(newOverlay);
-  });
+  }, [setOverlay]);
+
+  useOverlayRealtime(slug, overlay?.id, handleRealtimeUpdate);
 
   // Always render the style tag so the background is transparent from first paint.
   const styleTag = <style dangerouslySetInnerHTML={{ __html: TRANSPARENT_STYLE }} />;
