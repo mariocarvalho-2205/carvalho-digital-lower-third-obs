@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { OverlayData, OverlayConfig } from '../../types/overlay';
+import { OverlayData, OverlayConfig, VariationData } from '../../types/overlay';
 import { LivePreview } from './LivePreview';
 import { VisibilityControls } from './VisibilityControls';
 import { TextControls } from './TextControls';
@@ -15,104 +15,115 @@ interface ControlPanelProps {
   overlay: OverlayData;
   onUpdate: (updates: Partial<OverlayData>) => Promise<void>;
   onFlushUpdate: (updates: Partial<OverlayData>) => Promise<void>;
+  onUpdateVariation: (id: string, updates: Partial<VariationData>) => Promise<void>;
+  onFlushVariation: (id: string, updates: Partial<VariationData>) => Promise<void>;
+  onCreateVariation: (variation: Omit<VariationData, 'id' | 'created_at' | 'updated_at' | 'order_index'>) => Promise<VariationData | undefined>;
+  onDeleteVariation: (id: string) => Promise<void>;
   slug: string;
 }
 
 type TabType = 'global' | 'visual' | 'text' | 'logo' | 'animation';
 
-export function ControlPanel({ overlay, onUpdate, onFlushUpdate, slug }: ControlPanelProps) {
+export function ControlPanel({
+  overlay,
+  onUpdate,
+  onFlushUpdate,
+  onUpdateVariation,
+  onFlushVariation,
+  onCreateVariation,
+  onDeleteVariation,
+  slug
+}: ControlPanelProps) {
   const [activeTab, setActiveTab] = useState<TabType>('text');
   const [isPreviewActive, setIsPreviewActive] = useState<boolean>(true);
   const [localConfig, setLocalConfig] = React.useState<OverlayConfig>(overlay.config);
+  const [localVariations, setLocalVariations] = React.useState<VariationData[]>(overlay.variations ?? []);
   const [activeVariationId, setActiveVariationId] = useState<string | null>(null);
 
   React.useEffect(() => {
     setLocalConfig(overlay.config);
-  }, [overlay.config]);
-
-  const variations = localConfig.variations || [];
+    setLocalVariations(overlay.variations ?? []);
+  }, [overlay.config, overlay.variations]);
 
   // Find the variation currently being edited
-  const currentVariation = variations.find((v) => v.id === activeVariationId);
+  const currentVariation = localVariations.find((v) => v.id === activeVariationId);
 
   // When editing, LivePreview shows the active variation config, merged with global canvas/animation settings
   const previewConfig = React.useMemo(() => {
     if (currentVariation) {
       return {
         ...localConfig,
-        topBar: currentVariation.topBar,
-        contentBox: currentVariation.contentBox,
-        bottomBar: currentVariation.bottomBar,
-        texts: currentVariation.texts,
-        logo: currentVariation.logo,
-        globalTransform: currentVariation.globalTransform || localConfig.globalTransform,
+        topBar: currentVariation.config.topBar,
+        contentBox: currentVariation.config.contentBox,
+        bottomBar: currentVariation.config.bottomBar,
+        texts: currentVariation.config.texts,
+        logo: currentVariation.config.logo,
+        globalTransform: currentVariation.config.globalTransform || localConfig.globalTransform,
       };
     }
     // Default to the first variation or root config if in list mode
-    const firstVar = variations[0];
+    const firstVar = localVariations[0];
     if (firstVar) {
       return {
         ...localConfig,
-        topBar: firstVar.topBar,
-        contentBox: firstVar.contentBox,
-        bottomBar: firstVar.bottomBar,
-        texts: firstVar.texts,
-        logo: firstVar.logo,
-        globalTransform: firstVar.globalTransform || localConfig.globalTransform,
+        topBar: firstVar.config.topBar,
+        contentBox: firstVar.config.contentBox,
+        bottomBar: firstVar.config.bottomBar,
+        texts: firstVar.config.texts,
+        logo: firstVar.config.logo,
+        globalTransform: firstVar.config.globalTransform || localConfig.globalTransform,
       };
     }
     return localConfig;
-  }, [localConfig, currentVariation, variations]);
+  }, [localConfig, currentVariation, localVariations]);
 
   // Update a property of the selected variation
   const handleVariationChange = (section: string, value: any, commit = true) => {
     if (!activeVariationId) return;
 
-    const updatedVariations = variations.map((v) => {
+    const updatedVariations = localVariations.map((v) => {
       if (v.id === activeVariationId) {
         return {
           ...v,
-          [section]: value,
+          config: {
+            ...v.config,
+            [section]: value,
+          }
         };
       }
       return v;
     });
 
-    const updatedConfig = {
-      ...localConfig,
-      variations: updatedVariations,
-    };
-
-    setLocalConfig(updatedConfig);
+    setLocalVariations(updatedVariations);
     if (commit) {
-      onUpdate({ config: updatedConfig });
+      const updatedVar = updatedVariations.find(v => v.id === activeVariationId);
+      if (updatedVar) {
+        onUpdateVariation(activeVariationId, {
+          config: updatedVar.config
+        });
+      }
     }
   };
 
   // Toggle active state of a variation on the list
   const handleToggleVariationActive = (id: string, active: boolean) => {
-    const updatedVariations = variations.map((v) => {
+    const updatedVariations = localVariations.map((v) => {
       if (v.id === id) {
         return { ...v, is_active: active };
       }
       return v;
     });
 
-    const updatedConfig = {
-      ...localConfig,
-      variations: updatedVariations,
-    };
-
-    setLocalConfig(updatedConfig);
-    onFlushUpdate({ config: updatedConfig });
+    setLocalVariations(updatedVariations);
+    onFlushVariation(id, { is_active: active });
   };
 
   // Create a new variation
-  const handleCreateVariation = () => {
-    const newName = prompt('Nome da nova variação:', `Variação ${variations.length + 1}`);
+  const handleCreateVariation = async () => {
+    const newName = prompt('Nome da nova variação:', `Variação ${localVariations.length + 1}`);
     if (!newName) return;
 
-    const baseTemplate = currentVariation || variations[0] || {
+    const baseTemplate = currentVariation?.config || localVariations[0]?.config || {
       topBar: localConfig.topBar,
       contentBox: localConfig.contentBox,
       bottomBar: localConfig.bottomBar,
@@ -121,64 +132,48 @@ export function ControlPanel({ overlay, onUpdate, onFlushUpdate, slug }: Control
       globalTransform: localConfig.globalTransform,
     };
 
-    const newVar = {
-      id: `var-${Date.now()}`,
+    const newVariation = {
       name: newName,
       is_active: false,
-      topBar: JSON.parse(JSON.stringify(baseTemplate.topBar)),
-      contentBox: JSON.parse(JSON.stringify(baseTemplate.contentBox)),
-      bottomBar: JSON.parse(JSON.stringify(baseTemplate.bottomBar)),
-      texts: JSON.parse(JSON.stringify(baseTemplate.texts)),
-      logo: JSON.parse(JSON.stringify(baseTemplate.logo)),
-      globalTransform: baseTemplate.globalTransform ? JSON.parse(JSON.stringify(baseTemplate.globalTransform)) : undefined,
+      config: JSON.parse(JSON.stringify(baseTemplate)),
+      overlay_id: overlay.id!
     };
 
-    const updatedConfig = {
-      ...localConfig,
-      variations: [...variations, newVar],
-    };
-
-    setLocalConfig(updatedConfig);
-    onFlushUpdate({ config: updatedConfig });
-    setActiveVariationId(newVar.id);
+    const created = await onCreateVariation(newVariation);
+    if (created) {
+      setLocalVariations([...localVariations, created]);
+      setActiveVariationId(created.id);
+    }
   };
 
   // Duplicate variation
-  const handleDuplicateVariation = (id: string) => {
-    const target = variations.find((v) => v.id === id);
+  const handleDuplicateVariation = async (id: string) => {
+    const target = localVariations.find((v) => v.id === id);
     if (!target) return;
 
-    const newVar = {
-      ...JSON.parse(JSON.stringify(target)),
-      id: `var-${Date.now()}`,
+    const newVariation = {
       name: `${target.name} - Cópia`,
-      is_active: false, // Default to inactive when duplicated
+      is_active: false,
+      config: JSON.parse(JSON.stringify(target.config)),
+      overlay_id: overlay.id!
     };
 
-    const updatedConfig = {
-      ...localConfig,
-      variations: [...variations, newVar],
-    };
-
-    setLocalConfig(updatedConfig);
-    onFlushUpdate({ config: updatedConfig });
+    const created = await onCreateVariation(newVariation);
+    if (created) {
+      setLocalVariations([...localVariations, created]);
+    }
   };
 
   // Delete variation
-  const handleDeleteVariation = (id: string) => {
-    if (variations.length <= 1) {
+  const handleDeleteVariation = async (id: string) => {
+    if (localVariations.length <= 1) {
       alert('Você precisa ter pelo menos uma variação ativa.');
       return;
     }
     if (!confirm('Tem certeza que deseja excluir esta variação?')) return;
 
-    const updatedConfig = {
-      ...localConfig,
-      variations: variations.filter((v) => v.id !== id),
-    };
-
-    setLocalConfig(updatedConfig);
-    onFlushUpdate({ config: updatedConfig });
+    await onDeleteVariation(id);
+    setLocalVariations(localVariations.filter((v) => v.id !== id));
     if (activeVariationId === id) {
       setActiveVariationId(null);
     }
@@ -188,20 +183,15 @@ export function ControlPanel({ overlay, onUpdate, onFlushUpdate, slug }: Control
   const handleRenameVariation = (newName: string) => {
     if (!activeVariationId) return;
 
-    const updatedVariations = variations.map((v) => {
+    const updatedVariations = localVariations.map((v) => {
       if (v.id === activeVariationId) {
         return { ...v, name: newName };
       }
       return v;
     });
 
-    const updatedConfig = {
-      ...localConfig,
-      variations: updatedVariations,
-    };
-
-    setLocalConfig(updatedConfig);
-    onUpdate({ config: updatedConfig });
+    setLocalVariations(updatedVariations);
+    onUpdateVariation(activeVariationId, { name: newName });
   };
 
   // Handle global tab (applies directly to root globalTransform)
@@ -228,7 +218,13 @@ export function ControlPanel({ overlay, onUpdate, onFlushUpdate, slug }: Control
     <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
       {/* Lado Esquerdo: Preview e Ações Rápidas */}
       <div className="lg:col-span-6 flex flex-col gap-6 lg:sticky lg:top-6">
-        <LivePreview config={previewConfig} isActive={currentVariation ? currentVariation.is_active : overlay.is_active} isPreviewActive={isPreviewActive} activeVariationId={activeVariationId} />
+        <LivePreview
+          config={previewConfig}
+          variations={localVariations}
+          isActive={currentVariation ? currentVariation.is_active : overlay.is_active}
+          isPreviewActive={isPreviewActive}
+          activeVariationId={activeVariationId}
+        />
 
         <VisibilityControls
           isActive={currentVariation ? currentVariation.is_active : overlay.is_active}
@@ -290,7 +286,7 @@ export function ControlPanel({ overlay, onUpdate, onFlushUpdate, slug }: Control
             </div>
 
             <div className="flex flex-col gap-3">
-              {variations.map((v) => (
+              {localVariations.map((v) => (
                 <div
                   key={v.id}
                   className="bg-slate-950 border border-slate-850 hover:border-slate-800 rounded-lg p-3.5 flex items-center justify-between gap-4 transition-all"
@@ -301,7 +297,7 @@ export function ControlPanel({ overlay, onUpdate, onFlushUpdate, slug }: Control
                       <span className="font-semibold text-slate-200 text-sm truncate">{v.name}</span>
                     </div>
                     <div className="text-[10px] text-slate-500 mt-0.5 truncate">
-                      Texto: &quot;{v.texts?.title?.content || '—'}&quot; | &quot;{v.texts?.subtitle?.content || '—'}&quot;
+                      Texto: &quot;{v.config?.texts?.title?.content || '—'}&quot; | &quot;{v.config?.texts?.subtitle?.content || '—'}&quot;
                     </div>
                   </div>
 
@@ -403,14 +399,14 @@ export function ControlPanel({ overlay, onUpdate, onFlushUpdate, slug }: Control
             <div className="flex flex-col gap-4">
               {activeTab === 'global' && (
                 <GlobalTransformControls
-                  config={currentVariation?.globalTransform || localConfig.globalTransform}
+                  config={currentVariation?.config?.globalTransform || localConfig.globalTransform}
                   onChange={(val, commit) => handleVariationChange('globalTransform', val, commit)}
                 />
               )}
 
               {activeTab === 'text' && (
                 <TextControls
-                  config={currentVariation?.texts || localConfig.texts}
+                  config={currentVariation?.config?.texts || localConfig.texts}
                   onChange={(val, commit) => handleVariationChange('texts', val, commit)}
                   slug={slug}
                 />
@@ -420,17 +416,17 @@ export function ControlPanel({ overlay, onUpdate, onFlushUpdate, slug }: Control
                 <>
                   <ShapeControls
                     label="Barra Superior"
-                    config={currentVariation?.topBar || localConfig.topBar}
+                    config={currentVariation?.config?.topBar || localConfig.topBar}
                     onChange={(val, commit) => handleVariationChange('topBar', val, commit)}
                   />
                   <ShapeControls
                     label="Área Principal (Corpo Branco)"
-                    config={currentVariation?.contentBox || localConfig.contentBox}
+                    config={currentVariation?.config?.contentBox || localConfig.contentBox}
                     onChange={(val, commit) => handleVariationChange('contentBox', val, commit)}
                   />
                   <ShapeControls
                     label="Barra Inferior"
-                    config={currentVariation?.bottomBar || localConfig.bottomBar}
+                    config={currentVariation?.config?.bottomBar || localConfig.bottomBar}
                     onChange={(val, commit) => handleVariationChange('bottomBar', val, commit)}
                   />
                 </>
@@ -438,7 +434,7 @@ export function ControlPanel({ overlay, onUpdate, onFlushUpdate, slug }: Control
 
               {activeTab === 'logo' && (
                 <LogoControls
-                  config={currentVariation?.logo || localConfig.logo}
+                  config={currentVariation?.config?.logo || localConfig.logo}
                   onChange={(val, commit) => handleVariationChange('logo', val, commit)}
                   slug={slug}
                 />

@@ -19,11 +19,11 @@ export default function OverlayPage() {
   const params = useParams();
   const slug = (params?.slug as string) || 'ba-ao-vivo';
 
-  const { overlay, setOverlay, loading, error } = useOverlay(slug);
+  const { overlay, setOverlay, loading, error, refetch } = useOverlay(slug);
 
-  useOverlayRealtime(slug, (newOverlay) => {
+  useOverlayRealtime(slug, overlay?.id, (newOverlay) => {
     setOverlay(newOverlay);
-  });
+  }, refetch);
 
   // Always render the style tag so the background is transparent from first paint.
   const styleTag = <style dangerouslySetInnerHTML={{ __html: TRANSPARENT_STYLE }} />;
@@ -32,6 +32,28 @@ export default function OverlayPage() {
     return <>{styleTag}</>;
   }
 
+  // Use variations from the new table, with fallback to legacy synthesis
+  const variations = overlay.variations ?? [];
+  const variationsToRender = variations.length > 0
+    ? variations
+    : [
+        {
+          id: 'default-variation',
+          overlay_id: overlay.id,
+          name: 'Variação Padrão',
+          is_active: true,
+          config: {
+            topBar: overlay.config.topBar,
+            contentBox: overlay.config.contentBox,
+            bottomBar: overlay.config.bottomBar,
+            texts: overlay.config.texts,
+            logo: overlay.config.logo,
+            globalTransform: overlay.config.globalTransform
+          },
+          order_index: 0,
+        }
+      ];
+
   return (
     <>
       {styleTag}
@@ -39,10 +61,10 @@ export default function OverlayPage() {
         className="w-screen h-screen overflow-hidden relative"
         style={{ background: 'transparent' }}
       >
-        {overlay.config.variations?.map((variation) => {
+        {variationsToRender.map((variation) => {
           const subConfig = {
             ...overlay.config,
-            ...variation,
+            ...variation.config,
             canvas: overlay.config.canvas,
             animation: overlay.config.animation,
           };

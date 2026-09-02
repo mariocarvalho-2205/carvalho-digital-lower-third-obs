@@ -2,30 +2,36 @@
 
 import React, { useState } from 'react';
 import { LowerThird } from '@/components/overlay/LowerThird';
-import { OverlayConfig } from '@/types/overlay';
+import { OverlayConfig, VariationData } from '@/types/overlay';
 import { Image as ImageIcon, Eye, EyeOff, Trash2, Upload } from 'lucide-react';
 
 interface LivePreviewProps {
   config: OverlayConfig;
+  variations: VariationData[];
   isActive: boolean;
   isPreviewActive: boolean;
   activeVariationId: string | null;
 }
 
-export function LivePreview({ config, isActive, isPreviewActive, activeVariationId }: LivePreviewProps) {
+export function LivePreview({
+  config,
+  variations,
+  isActive,
+  isPreviewActive,
+  activeVariationId
+}: LivePreviewProps) {
   const [referenceImage, setReferenceImage] = useState<string | null>(null);
   const [referenceOpacity, setReferenceOpacity] = useState<number>(0.5);
   const [referenceVisible, setReferenceVisible] = useState<boolean>(true);
 
-  // Carrega configurações locais ao iniciar
   React.useEffect(() => {
     if (typeof window !== 'undefined') {
       const savedImage = localStorage.getItem(`referenceImage_${config.canvas.width}x${config.canvas.height}`);
       if (savedImage) setReferenceImage(savedImage);
-      
+
       const savedOpacity = localStorage.getItem('referenceOpacity');
       if (savedOpacity) setReferenceOpacity(parseFloat(savedOpacity));
-      
+
       const savedVisible = localStorage.getItem('referenceVisible');
       if (savedVisible) setReferenceVisible(savedVisible === 'true');
     }
@@ -81,7 +87,7 @@ export function LivePreview({ config, isActive, isPreviewActive, activeVariation
           <h2 className="text-sm font-semibold tracking-wider text-slate-400 uppercase">Live Preview</h2>
           <span className="text-[10px] bg-slate-900 border border-slate-800 text-slate-500 px-2 py-0.5 rounded-full font-mono">1920x1080</span>
         </div>
-        
+
         <div className="flex items-center gap-3">
           <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold ${isActive ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'}`}>
             <span className={`h-1.5 w-1.5 rounded-full ${isActive ? 'bg-emerald-400 animate-pulse' : 'bg-rose-400'}`}></span>
@@ -93,7 +99,7 @@ export function LivePreview({ config, isActive, isPreviewActive, activeVariation
       {/* Main Canvas Container */}
       <div className="relative w-full aspect-video rounded-xl overflow-hidden border border-slate-800 bg-slate-950 shadow-2xl flex items-center justify-center group">
         {/* Transparent checkerboard background */}
-        <div 
+        <div
           className="absolute inset-0 opacity-15 pointer-events-none"
           style={{
             backgroundImage: 'radial-gradient(#475569 1px, transparent 1px), radial-gradient(#475569 1px, transparent 1px)',
@@ -115,26 +121,26 @@ export function LivePreview({ config, isActive, isPreviewActive, activeVariation
             }}
           />
         )}
-        
+
         {/* The visual lower third scale wrapper */}
         <div className="w-full h-full relative z-10" style={{ transform: 'scale(1)', transformOrigin: 'top left' }}>
           {activeVariationId !== null ? (
             (() => {
-              const currentVar = config.variations?.find((v) => v.id === activeVariationId);
+              const currentVar = variations?.find((v) => v.id === activeVariationId);
               if (!currentVar) return null;
               const subConfig = {
                 ...config,
-                ...currentVar,
+                ...currentVar.config,
                 canvas: config.canvas,
                 animation: config.animation,
               };
               return <LowerThird config={subConfig} isActive={isPreviewActive} isPreview={true} />;
             })()
           ) : (
-            config.variations?.map((variation) => {
+            variations?.map((variation) => {
               const subConfig = {
                 ...config,
-                ...variation,
+                ...variation.config,
                 canvas: config.canvas,
                 animation: config.animation,
               };
@@ -210,4 +216,3 @@ export function LivePreview({ config, isActive, isPreviewActive, activeVariation
     </div>
   );
 }
-

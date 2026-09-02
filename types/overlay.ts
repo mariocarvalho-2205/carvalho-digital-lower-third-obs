@@ -111,6 +111,26 @@ export interface GlobalTransformConfig {
   scale: number;   // Escala global (ex: 1 = 100%, 0.8 = 80%)
 }
 
+export interface VariationInnerConfig {
+  topBar: BarConfig;
+  contentBox: ContentBoxConfig;
+  bottomBar: BarConfig;
+  texts: TextsConfig;
+  logo: LogoConfig;
+  globalTransform?: GlobalTransformConfig;
+}
+
+export interface VariationData {
+  id: string;
+  overlay_id: string;
+  name: string;
+  is_active: boolean;
+  config: VariationInnerConfig;
+  order_index: number;
+  created_at?: string;
+  updated_at?: string;
+}
+
 export interface VariationConfig {
   id: string;
   name: string;
@@ -132,7 +152,6 @@ export interface OverlayConfig {
   logo: LogoConfig;
   animation: AnimationConfig;
   globalTransform?: GlobalTransformConfig;
-  variations?: VariationConfig[];
 }
 
 export interface OverlayData {
@@ -143,4 +162,5 @@ export interface OverlayData {
   is_active: boolean;
   created_at?: string;
   updated_at?: string;
+  variations?: VariationData[];
 }

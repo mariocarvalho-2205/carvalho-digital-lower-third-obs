@@ -11,7 +11,18 @@ export default function PainelPage() {
   const params = useParams();
   const slug = params?.slug as string || 'ba-ao-vivo';
 
-  const { overlay, setOverlay, loading, error, updateOverlay, flushAndUpdate } = useOverlay(slug);
+  const {
+    overlay,
+    setOverlay,
+    loading,
+    error,
+    updateOverlay,
+    flushAndUpdate,
+    updateVariationConfig,
+    flushVariationUpdate,
+    createVariation,
+    deleteVariation
+  } = useOverlay(slug);
 
   // NOTE: Realtime listener was intentionally REMOVED from the panel page.
   // The panel is the SOURCE of changes — it already holds the most up-to-date
@@ -61,6 +72,10 @@ export default function PainelPage() {
             overlay={overlay}
             onUpdate={updateOverlay}
             onFlushUpdate={flushAndUpdate}
+            onUpdateVariation={updateVariationConfig}
+            onFlushVariation={flushVariationUpdate}
+            onCreateVariation={createVariation}
+            onDeleteVariation={deleteVariation}
             slug={slug}
           />
         ) : null}
