@@ -305,13 +305,12 @@ export function ControlPanel({
                     {/* Ativar/Desativar individualmente */}
                     <button
                       onClick={() => handleToggleVariationActive(v.id, !v.is_active)}
-                      className={`px-2.5 py-1 rounded text-[10px] font-bold border transition-all ${
-                        v.is_active
-                          ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/20'
-                          : 'bg-rose-500/10 border-rose-500/30 text-rose-400 hover:bg-rose-500/20'
-                      }`}
+                      className={`px-2.5 py-1 rounded text-[10px] font-bold border transition-all ${v.is_active
+                        ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/20'
+                        : 'bg-rose-500/10 border-rose-500/30 text-rose-400 hover:bg-rose-500/20'
+                        }`}
                     >
-                      {v.is_active ? 'ATIVO (ON)' : 'OFF'}
+                      {v.is_active ? 'ON' : 'OFF'}
                     </button>
 
                     {/* Editar */}
@@ -382,11 +381,10 @@ export function ControlPanel({
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
-                    className={`flex items-center gap-1.5 py-2.5 px-4 text-xs font-semibold whitespace-nowrap border-b-2 transition-all -mb-px ${
-                      activeTab === tab.id
-                        ? 'border-blue-500 text-blue-400 font-bold'
-                        : 'border-transparent text-slate-500 hover:text-slate-300 hover:border-slate-800'
-                    }`}
+                    className={`flex items-center gap-1.5 py-2.5 px-4 text-xs font-semibold whitespace-nowrap border-b-2 transition-all -mb-px ${activeTab === tab.id
+                      ? 'border-blue-500 text-blue-400 font-bold'
+                      : 'border-transparent text-slate-500 hover:text-slate-300 hover:border-slate-800'
+                      }`}
                   >
                     <Icon className="w-3.5 h-3.5" />
                     {tab.label}
