@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
-import { OverlayData, OverlayConfig, VariationData } from '../../types/overlay';
+import { OverlayData, OverlayConfig, VariationData, ExtraElementConfig, BarConfig } from '../../types/overlay';
+import { ExtraElementControls } from './ExtraElementControls';
 import { LivePreview } from './LivePreview';
 import { VisibilityControls } from './VisibilityControls';
 import { TextControls } from './TextControls';
@@ -9,7 +10,7 @@ import { ShapeControls } from './ShapeControls';
 import { LogoControls } from './LogoControls';
 import { AnimationControls } from './AnimationControls';
 import { GlobalTransformControls } from './GlobalTransformControls';
-import { Sliders, Monitor, Eye, Image as ImageIcon, Type, Sparkles, Move } from 'lucide-react';
+import { Sliders, Monitor, Eye, Image as ImageIcon, Type, Sparkles, Move, Plus } from 'lucide-react';
 
 interface ControlPanelProps {
   overlay: OverlayData;
@@ -59,6 +60,7 @@ export function ControlPanel({
         texts: currentVariation.config.texts,
         logo: currentVariation.config.logo,
         globalTransform: currentVariation.config.globalTransform || localConfig.globalTransform,
+        extraElements: currentVariation.config.extraElements || [],
       };
     }
     // Default to the first variation or root config if in list mode
@@ -72,6 +74,7 @@ export function ControlPanel({
         texts: firstVar.config.texts,
         logo: firstVar.config.logo,
         globalTransform: firstVar.config.globalTransform || localConfig.globalTransform,
+        extraElements: firstVar.config.extraElements || [],
       };
     }
     return localConfig;
@@ -130,6 +133,7 @@ export function ControlPanel({
       texts: localConfig.texts,
       logo: localConfig.logo,
       globalTransform: localConfig.globalTransform,
+      extraElements: localConfig.extraElements || [],
     };
 
     const newVariation = {
@@ -427,6 +431,81 @@ export function ControlPanel({
                     config={currentVariation?.config?.bottomBar || localConfig.bottomBar}
                     onChange={(val, commit) => handleVariationChange('bottomBar', val, commit)}
                   />
+
+                  {/* Separator */}
+                  <div className="border-t border-slate-800/60 pt-4 mt-2">
+                    <div className="flex items-center justify-between mb-3">
+                      <div>
+                        <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Elementos Extras</h3>
+                        <p className="text-[10px] text-slate-500 mt-0.5">Adicione shapes customizados com texto opcional</p>
+                      </div>
+                      <button
+                        onClick={() => {
+                          const extraElements = currentVariation?.config?.extraElements || localConfig.extraElements || [];
+                          if (extraElements.length >= 10) {
+                            alert('Limite máximo de 10 elementos extras atingido.');
+                            return;
+                          }
+                          const newElement: ExtraElementConfig = {
+                            id: crypto.randomUUID(),
+                            name: `Elemento ${extraElements.length + 1}`,
+                            shape: {
+                              x: 100,
+                              y: 800,
+                              width: 300,
+                              height: 40,
+                              background: { type: 'solid', color: '#334155' },
+                              radius: { topLeft: 0, topRight: 0, bottomRight: 0, bottomLeft: 0 },
+                              enabled: true,
+                            } as BarConfig,
+                            textEnabled: false,
+                            order: extraElements.length,
+                          };
+                          handleVariationChange('extraElements', [...extraElements, newElement], true);
+                        }}
+                        className="flex items-center gap-1 py-1.5 px-3 bg-blue-600 hover:bg-blue-500 text-white rounded text-[11px] font-bold border border-blue-500 transition-all shadow-md shadow-blue-900/10"
+                      >
+                        <Plus className="w-3.5 h-3.5" />
+                        ADICIONAR
+                      </button>
+                    </div>
+
+                    {/* Extra Elements List */}
+                    {(() => {
+                      const extraElements = currentVariation?.config?.extraElements || localConfig.extraElements || [];
+                      if (extraElements.length === 0) {
+                        return (
+                          <div className="bg-slate-950 border border-dashed border-slate-800 rounded-xl p-6 flex flex-col items-center justify-center gap-2 text-center">
+                            <Plus className="w-6 h-6 text-slate-700" />
+                            <p className="text-[11px] text-slate-500">Nenhum elemento extra adicionado.</p>
+                            <p className="text-[10px] text-slate-600">Clique em &quot;Adicionar&quot; para criar um novo shape com texto opcional.</p>
+                          </div>
+                        );
+                      }
+                      return (
+                        <div className="flex flex-col gap-3">
+                          {extraElements
+                            .sort((a: ExtraElementConfig, b: ExtraElementConfig) => a.order - b.order)
+                            .map((el: ExtraElementConfig) => (
+                              <ExtraElementControls
+                                key={el.id}
+                                element={el}
+                                onChange={(updated, commit) => {
+                                  const newList = extraElements.map((e: ExtraElementConfig) =>
+                                    e.id === updated.id ? updated : e
+                                  );
+                                  handleVariationChange('extraElements', newList, commit);
+                                }}
+                                onDelete={() => {
+                                  const newList = extraElements.filter((e: ExtraElementConfig) => e.id !== el.id);
+                                  handleVariationChange('extraElements', newList, true);
+                                }}
+                              />
+                            ))}
+                        </div>
+                      );
+                    })()}
+                  </div>
                 </>
               )}
 

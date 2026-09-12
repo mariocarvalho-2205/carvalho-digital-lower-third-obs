@@ -111,6 +111,15 @@ export interface GlobalTransformConfig {
   scale: number;   // Escala global (ex: 1 = 100%, 0.8 = 80%)
 }
 
+export interface ExtraElementConfig {
+  id: string;                    // UUID único do elemento
+  name: string;                  // Nome amigável (ex: "Barra Lateral", "Badge")
+  shape: BarConfig;              // Mesma estrutura das barras existentes
+  text?: TextPropertyConfig;     // Texto opcional (null = sem texto)
+  textEnabled: boolean;          // Toggle para ativar/desativar texto
+  order: number;                 // Ordem de empilhamento
+}
+
 export interface VariationInnerConfig {
   topBar: BarConfig;
   contentBox: ContentBoxConfig;
@@ -118,6 +127,7 @@ export interface VariationInnerConfig {
   texts: TextsConfig;
   logo: LogoConfig;
   globalTransform?: GlobalTransformConfig;
+  extraElements?: ExtraElementConfig[];
 }
 
 export interface VariationData {
@@ -141,6 +151,7 @@ export interface VariationConfig {
   texts: TextsConfig;
   logo: LogoConfig;
   globalTransform?: GlobalTransformConfig;
+  extraElements?: ExtraElementConfig[];
 }
 
 export interface OverlayConfig {
@@ -152,6 +163,7 @@ export interface OverlayConfig {
   logo: LogoConfig;
   animation: AnimationConfig;
   globalTransform?: GlobalTransformConfig;
+  extraElements?: ExtraElementConfig[];
 }
 
 export interface OverlayData {

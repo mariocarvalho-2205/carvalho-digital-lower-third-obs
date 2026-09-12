@@ -169,6 +169,17 @@ export function LowerThird({ config, isActive, isPreview = false }: LowerThirdPr
             <Shape config={bottomBar} />
             {texts.bottomText && <TextElement config={texts.bottomText} containerBar={bottomBar} />}
           </div>
+
+          {/* Elementos Extras Dinâmicos */}
+          {(config.extraElements || [])
+            .filter(el => el.shape.enabled !== false)
+            .sort((a, b) => a.order - b.order)
+            .map((el) => (
+              <div key={el.id} className="w-full h-full absolute inset-0 pointer-events-none">
+                <Shape config={el.shape} />
+                {el.textEnabled && el.text && <TextElement config={el.text} />}
+              </div>
+            ))}
         </div>
       </div>
     </OverlayCanvas>
