@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { LayoutGrid, Plus, Monitor, ArrowUpRight, Radio, ExternalLink } from 'lucide-react';
-import { createClient } from '@/lib/supabase/client';
+import { createClient, TABLE_OVERLAYS, TABLE_VARIATIONS } from '@/lib/supabase/client';
 import { DEFAULT_OVERLAY_CONFIG } from '@/lib/overlay-defaults';
 
 export default function Home() {
@@ -18,7 +18,7 @@ export default function Home() {
     const fetchOverlays = async () => {
       try {
         const { data, error } = await supabase
-          .from('overlays')
+          .from(TABLE_OVERLAYS)
           .select('slug')
           .order('created_at', { ascending: false });
 
@@ -49,7 +49,7 @@ export default function Home() {
     try {
       // Create overlay in Supabase with default config
       const { data: overlayData, error: overlayError } = await supabase
-        .from('overlays')
+        .from(TABLE_OVERLAYS)
         .insert([{
           slug: formatted,
           name: formatted.replace(/-/g, ' ').toUpperCase(),
@@ -64,7 +64,7 @@ export default function Home() {
       // Create default variation with default config
       if (overlayData?.id) {
         const { error: variationError } = await supabase
-          .from('variations')
+          .from(TABLE_VARIATIONS)
           .insert([{
             overlay_id: overlayData.id,
             name: 'Variação Padrão',

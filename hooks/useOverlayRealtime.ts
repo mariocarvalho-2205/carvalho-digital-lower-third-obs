@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { createClient } from '../lib/supabase/client';
+import { createClient, TABLE_OVERLAYS, TABLE_VARIATIONS } from '../lib/supabase/client';
 import { OverlayData } from '../types/overlay';
 
 export function useOverlayRealtime(
@@ -23,7 +23,7 @@ export function useOverlayRealtime(
         {
           event: 'UPDATE',
           schema: 'public',
-          table: 'overlays',
+          table: TABLE_OVERLAYS,
           filter: `slug=eq.${slug}`
         },
         (payload) => {
@@ -42,7 +42,7 @@ export function useOverlayRealtime(
         {
           event: 'INSERT',
           schema: 'public',
-          table: 'variations'
+          table: TABLE_VARIATIONS
         },
         (payload: any) => {
           if (payload.new?.overlay_id === overlayId) {
@@ -58,7 +58,7 @@ export function useOverlayRealtime(
         {
           event: 'UPDATE',
           schema: 'public',
-          table: 'variations'
+          table: TABLE_VARIATIONS
         },
         (payload: any) => {
           console.log('[Realtime] Variation UPDATE event:', payload);
@@ -83,7 +83,7 @@ export function useOverlayRealtime(
         {
           event: 'DELETE',
           schema: 'public',
-          table: 'variations'
+          table: TABLE_VARIATIONS
         },
         (payload: any) => {
           if (payload.old?.overlay_id === overlayId) {

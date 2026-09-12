@@ -1,13 +1,15 @@
 import React from 'react';
 import { BarConfig, ContentBoxConfig } from '../../types/overlay';
+import { ElementAnimationControls } from './ElementAnimationControls';
 
 interface ShapeControlsProps {
   label: string;
   config: BarConfig | ContentBoxConfig;
-  onChange: (shape: any, commit?: boolean) => void;
+  onChange: (config: BarConfig | ContentBoxConfig, commit?: boolean) => void;
+  onTestAnimation?: (isTesting: boolean) => void;
 }
 
-export function ShapeControls({ label, config, onChange }: ShapeControlsProps) {
+export function ShapeControls({ label, config, onChange, onTestAnimation }: ShapeControlsProps) {
   const updateProp = (key: string, value: any, commit = true) => {
     onChange({
       ...config,
@@ -283,6 +285,13 @@ export function ShapeControls({ label, config, onChange }: ShapeControlsProps) {
           </div>
         </div>
       </div>
+      {/* Individual Animation */}
+      <ElementAnimationControls 
+        config={config.animation} 
+        onChange={(anim, commit) => updateProp('animation', anim, commit)} 
+        onTest={onTestAnimation}
+      />
+
     </div>
     </div>
   );

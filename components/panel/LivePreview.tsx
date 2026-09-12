@@ -11,6 +11,7 @@ interface LivePreviewProps {
   isActive: boolean;
   isPreviewActive: boolean;
   activeVariationId: string | null;
+  testOverrides?: Record<string, boolean>;
 }
 
 export function LivePreview({
@@ -18,7 +19,8 @@ export function LivePreview({
   variations,
   isActive,
   isPreviewActive,
-  activeVariationId
+  activeVariationId,
+  testOverrides = {}
 }: LivePreviewProps) {
   const [referenceImage, setReferenceImage] = useState<string | null>(null);
   const [referenceOpacity, setReferenceOpacity] = useState<number>(0.5);
@@ -134,10 +136,11 @@ export function LivePreview({
                 canvas: config.canvas,
                 animation: config.animation,
               };
-              return <LowerThird config={subConfig} isActive={isPreviewActive} isPreview={true} />;
+              return <LowerThird config={subConfig} isActive={isPreviewActive} isPreview={true} testOverrides={testOverrides} />;
             })()
           ) : (
             variations?.map((variation) => {
+              if (!variation.is_active) return null;
               const subConfig = {
                 ...config,
                 ...variation.config,
@@ -145,8 +148,8 @@ export function LivePreview({
                 animation: config.animation,
               };
               return (
-                <div key={variation.id} className="absolute inset-0 pointer-events-none">
-                  <LowerThird config={subConfig} isActive={isPreviewActive && variation.is_active} isPreview={true} />
+                <div key={`preview-global-${variation.id}`} className="absolute inset-0 pointer-events-none">
+                  <LowerThird config={subConfig} isActive={isPreviewActive} isPreview={true} testOverrides={testOverrides} />
                 </div>
               );
             })

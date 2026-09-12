@@ -74,6 +74,7 @@ export interface BarConfig {
   radius: CornerRadiusConfig;
   enabled?: boolean;
   locked?: boolean;
+  animation?: ElementAnimationConfig;
 }
 
 export interface ContentBoxConfig {
@@ -86,6 +87,7 @@ export interface ContentBoxConfig {
   opacity: number;
   enabled?: boolean;
   locked?: boolean;
+  animation?: ElementAnimationConfig;
 }
 
 export interface LogoConfig {
@@ -97,12 +99,22 @@ export interface LogoConfig {
   backgroundType: 'transparent' | 'circle' | 'square';
   backgroundColor: string;
   padding: number;
+  animation?: ElementAnimationConfig;
 }
 
 export interface AnimationConfig {
+  enabled?: boolean;
   enter: 'fade' | 'slide-left' | 'slide-right' | 'slide-up';
   exit: 'fade' | 'slide-left' | 'slide-right' | 'slide-up';
   duration: number; // in milliseconds
+}
+
+export interface ElementAnimationConfig {
+  enabled: boolean;
+  enter: 'none' | 'wipe-right' | 'wipe-left' | 'wipe-down' | 'wipe-up' | 'fade' | 'spin-cw' | 'spin-ccw';
+  exit: 'none' | 'wipe-right' | 'wipe-left' | 'wipe-down' | 'wipe-up' | 'fade' | 'spin-cw' | 'spin-ccw';
+  duration: number; // in milliseconds
+  delay: number; // in milliseconds
 }
 
 export interface GlobalTransformConfig {

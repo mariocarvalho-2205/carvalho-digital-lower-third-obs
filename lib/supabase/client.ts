@@ -6,3 +6,6 @@ export function createClient() {
   
   return createBrowserClient(supabaseUrl, supabaseAnonKey);
 }
+
+export const TABLE_OVERLAYS = process.env.NODE_ENV === 'development' ? 'overlays_dev' : 'overlays';
+export const TABLE_VARIATIONS = process.env.NODE_ENV === 'development' ? 'variations_dev' : 'variations';

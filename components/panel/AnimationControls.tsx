@@ -23,9 +23,22 @@ export function AnimationControls({ config, onChange }: AnimationControlsProps) 
 
   return (
     <div className="bg-slate-900 border border-slate-800 rounded-xl p-4 flex flex-col gap-4">
-      <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Transições & Animações</h3>
+      <div className="flex items-center justify-between border-b border-slate-800/60 pb-3">
+        <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Transições Globais</h3>
+        <button
+          onClick={() => handlePropChange('enabled', config.enabled === false ? true : false)}
+          className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[10px] font-bold border transition-all duration-200 ${
+            config.enabled !== false
+              ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/20'
+              : 'bg-rose-500/10 border-rose-500/30 text-rose-400 hover:bg-rose-500/20'
+          }`}
+        >
+          <span className={`w-1.5 h-1.5 rounded-full ${config.enabled !== false ? 'bg-emerald-400 animate-pulse' : 'bg-rose-400'}`} />
+          {config.enabled !== false ? 'ATIVADA' : 'DESATIVADA'}
+        </button>
+      </div>
       
-      <div className="grid grid-cols-2 gap-3">
+      <div className={`grid grid-cols-2 gap-3 transition-opacity ${config.enabled === false ? 'opacity-40 pointer-events-none' : ''}`}>
         <div className="flex flex-col gap-1">
           <label className="text-[10px] text-slate-400 font-medium">Entrada</label>
           <select
@@ -53,7 +66,7 @@ export function AnimationControls({ config, onChange }: AnimationControlsProps) 
         </div>
       </div>
 
-      <div className="flex flex-col gap-1 border-t border-slate-800/60 pt-3">
+      <div className={`flex flex-col gap-1 border-t border-slate-800/60 pt-3 transition-opacity ${config.enabled === false ? 'opacity-40 pointer-events-none' : ''}`}>
         <label className="text-[10px] text-slate-400 font-medium">Duração ({config.duration}ms)</label>
         <input
           type="range"

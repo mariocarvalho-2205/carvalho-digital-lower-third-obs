@@ -1,14 +1,16 @@
 import React, { useState } from 'react';
 import { LogoConfig } from '../../types/overlay';
 import { createClient } from '../../lib/supabase/client';
+import { ElementAnimationControls } from './ElementAnimationControls';
 
 interface LogoControlsProps {
   config: LogoConfig;
   onChange: (logo: LogoConfig, commit?: boolean) => void;
   slug: string;
+  onTestAnimation?: (isTesting: boolean) => void;
 }
 
-export function LogoControls({ config, onChange, slug }: LogoControlsProps) {
+export function LogoControls({ config, onChange, slug, onTestAnimation }: LogoControlsProps) {
   const [uploading, setUploading] = useState(false);
   const supabase = createClient();
 
@@ -176,6 +178,14 @@ export function LogoControls({ config, onChange, slug }: LogoControlsProps) {
           </div>
         )}
       </div>
+
+      {/* Individual Animation */}
+      <ElementAnimationControls 
+        config={config.animation} 
+        onChange={(anim, commit) => handlePropChange('animation', anim, commit)} 
+        onTest={onTestAnimation}
+      />
+
     </div>
   );
 }

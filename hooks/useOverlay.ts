@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
-import { createClient } from '../lib/supabase/client';
+import { createClient, TABLE_OVERLAYS, TABLE_VARIATIONS } from '../lib/supabase/client';
 import { OverlayData, OverlayConfig, VariationData } from '../types/overlay';
 import { DEFAULT_OVERLAY_CONFIG } from '../lib/overlay-defaults';
 
@@ -190,7 +190,7 @@ export function useOverlay(slug: string) {
 
       // Fetch overlay without variations JOIN (separate query)
       const overlayResult = await supabase
-        .from('overlays')
+        .from(TABLE_OVERLAYS)
         .select('id, slug, name, config, is_active, created_at, updated_at')
         .eq('slug', slug)
         .single();
@@ -208,7 +208,7 @@ export function useOverlay(slug: string) {
           };
 
           const { data: insertedData, error: insertError } = await supabase
-            .from('overlays')
+            .from(TABLE_OVERLAYS)
             .insert([defaultOverlay])
             .select('id, slug, name, config, is_active, created_at, updated_at')
             .single();
@@ -218,7 +218,7 @@ export function useOverlay(slug: string) {
             if (insertError.code === '23505') {
               console.log('Overlay already exists, fetching it...');
               const existingResult = await supabase
-                .from('overlays')
+                .from(TABLE_OVERLAYS)
                 .select('id, slug, name, config, is_active, created_at, updated_at')
                 .eq('slug', slug)
                 .single();
@@ -227,7 +227,7 @@ export function useOverlay(slug: string) {
               const data = existingResult.data as any;
               if (data?.id) {
                 const variationsResult = await supabase
-                  .from('variations')
+                  .from(TABLE_VARIATIONS)
                   .select('id, overlay_id, name, is_active, config, order_index, created_at, updated_at')
                   .eq('overlay_id', data.id)
                   .order('order_index', { ascending: true });
@@ -258,7 +258,7 @@ export function useOverlay(slug: string) {
             };
 
             const { data: variation, error: variationError } = await supabase
-              .from('variations')
+              .from(TABLE_VARIATIONS)
               .insert([defaultVariation])
               .select()
               .single();
@@ -280,7 +280,7 @@ export function useOverlay(slug: string) {
 
         if (data?.id) {
           const variationsResult = await supabase
-            .from('variations')
+            .from(TABLE_VARIATIONS)
             .select('id, overlay_id, name, is_active, config, order_index, created_at, updated_at')
             .eq('overlay_id', data.id)
             .order('order_index', { ascending: true });
@@ -315,7 +315,7 @@ export function useOverlay(slug: string) {
   const saveToSupabase = async (payload: Partial<OverlayData>) => {
     try {
       const { error } = await supabase
-        .from('overlays')
+        .from(TABLE_OVERLAYS)
         .update(payload)
         .eq('slug', slug);
 
@@ -330,7 +330,7 @@ export function useOverlay(slug: string) {
   const saveVariationToSupabase = async (id: string, payload: Partial<VariationData>) => {
     try {
       const { error } = await supabase
-        .from('variations')
+        .from(TABLE_VARIATIONS)
         .update(payload)
         .eq('id', id);
 
@@ -441,7 +441,7 @@ export function useOverlay(slug: string) {
       const nextOrder = maxOrder + 1;
 
       const { data: insertedVariation, error } = await supabase
-        .from('variations')
+        .from(TABLE_VARIATIONS)
         .insert([
           {
             ...variation,
@@ -482,7 +482,7 @@ export function useOverlay(slug: string) {
       pendingVariationUpdatesRef.current.delete(id);
 
       const { error } = await supabase
-        .from('variations')
+        .from(TABLE_VARIATIONS)
         .delete()
         .eq('id', id);
 

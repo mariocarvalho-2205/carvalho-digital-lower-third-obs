@@ -40,6 +40,11 @@ export function ControlPanel({
   const [localConfig, setLocalConfig] = React.useState<OverlayConfig>(overlay.config);
   const [localVariations, setLocalVariations] = React.useState<VariationData[]>(overlay.variations ?? []);
   const [activeVariationId, setActiveVariationId] = useState<string | null>(null);
+  const [testOverrides, setTestOverrides] = useState<Record<string, boolean>>({});
+
+  const handleTestAnimation = (elementId: string, isTesting: boolean) => {
+    setTestOverrides((prev) => ({ ...prev, [elementId]: isTesting }));
+  };
 
   React.useEffect(() => {
     setLocalConfig(overlay.config);
@@ -228,6 +233,7 @@ export function ControlPanel({
           isActive={currentVariation ? currentVariation.is_active : overlay.is_active}
           isPreviewActive={isPreviewActive}
           activeVariationId={activeVariationId}
+          testOverrides={testOverrides}
         />
 
         <VisibilityControls
@@ -420,16 +426,19 @@ export function ControlPanel({
                     label="Barra Superior"
                     config={currentVariation?.config?.topBar || localConfig.topBar}
                     onChange={(val, commit) => handleVariationChange('topBar', val, commit)}
+                    onTestAnimation={(isTesting) => handleTestAnimation('topBar', isTesting)}
                   />
                   <ShapeControls
                     label="Área Principal (Corpo Branco)"
                     config={currentVariation?.config?.contentBox || localConfig.contentBox}
                     onChange={(val, commit) => handleVariationChange('contentBox', val, commit)}
+                    onTestAnimation={(isTesting) => handleTestAnimation('contentBox', isTesting)}
                   />
                   <ShapeControls
                     label="Barra Inferior"
                     config={currentVariation?.config?.bottomBar || localConfig.bottomBar}
                     onChange={(val, commit) => handleVariationChange('bottomBar', val, commit)}
+                    onTestAnimation={(isTesting) => handleTestAnimation('bottomBar', isTesting)}
                   />
 
                   {/* Separator */}
@@ -500,6 +509,7 @@ export function ControlPanel({
                                   const newList = extraElements.filter((e: ExtraElementConfig) => e.id !== el.id);
                                   handleVariationChange('extraElements', newList, true);
                                 }}
+                                onTestAnimation={(isTesting) => handleTestAnimation(`extra_${el.id}`, isTesting)}
                               />
                             ))}
                         </div>
@@ -514,6 +524,7 @@ export function ControlPanel({
                   config={currentVariation?.config?.logo || localConfig.logo}
                   onChange={(val, commit) => handleVariationChange('logo', val, commit)}
                   slug={slug}
+                  onTestAnimation={(isTesting) => handleTestAnimation('logo', isTesting)}
                 />
               )}
 

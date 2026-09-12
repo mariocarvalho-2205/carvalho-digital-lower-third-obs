@@ -9,6 +9,7 @@ interface ExtraElementControlsProps {
   element: ExtraElementConfig;
   onChange: (updated: ExtraElementConfig, commit?: boolean) => void;
   onDelete: () => void;
+  onTestAnimation?: (isTesting: boolean) => void;
 }
 
 const DEFAULT_TEXT: TextPropertyConfig = {
@@ -21,7 +22,7 @@ const DEFAULT_TEXT: TextPropertyConfig = {
   color: '#FFFFFF',
 };
 
-export function ExtraElementControls({ element, onChange, onDelete }: ExtraElementControlsProps) {
+export function ExtraElementControls({ element, onChange, onDelete, onTestAnimation }: ExtraElementControlsProps) {
   const [isExpanded, setIsExpanded] = useState<boolean>(true);
   const [isRenaming, setIsRenaming] = useState<boolean>(false);
   const [confirmingDelete, setConfirmingDelete] = useState<boolean>(false);
@@ -160,6 +161,7 @@ export function ExtraElementControls({ element, onChange, onDelete }: ExtraEleme
               label={`Shape — ${element.name}`}
               config={element.shape}
               onChange={handleShapeChange}
+              onTestAnimation={onTestAnimation}
             />
           </div>
 
