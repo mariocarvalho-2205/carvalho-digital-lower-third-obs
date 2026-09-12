@@ -99,6 +99,7 @@ export interface LogoConfig {
   backgroundType: 'transparent' | 'circle' | 'square';
   backgroundColor: string;
   padding: number;
+  enabled?: boolean;
   animation?: ElementAnimationConfig;
 }
 

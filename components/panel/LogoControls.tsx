@@ -9,16 +9,15 @@ interface LogoControlsProps {
   slug: string;
   onTestAnimation?: (isTesting: boolean) => void;
 }
-
 export function LogoControls({ config, onChange, slug, onTestAnimation }: LogoControlsProps) {
   const [uploading, setUploading] = useState(false);
   const supabase = createClient();
 
-  const handlePropChange = (key: string, value: any) => {
+  const handlePropChange = (key: string, value: any, commit?: boolean) => {
     onChange({
       ...config,
       [key]: value
-    });
+    }, commit);
   };
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
